@@ -12,3 +12,181 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+//------------------------------------------------------|
+//-- User and Authentication (auth.js)
+model User {
+  id            String          @id @default(cuid())
+  name          String?
+  email         String          @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  // Optional for WebAuthn support
+  Authenticator Authenticator[]
+ 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+ 
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+ 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+ 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+ 
+  @@id([provider, providerAccountId])
+}
+ 
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+ 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+ 
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+ 
+  @@id([identifier, token])
+}
+ 
+// Optional for WebAuthn support
+model Authenticator {
+  credentialID         String  @unique
+  userId               String
+  providerAccountId    String
+  credentialPublicKey  String
+  counter              Int
+  credentialDeviceType String
+  credentialBackedUp   Boolean
+  transports           String?
+ 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+ 
+  @@id([userId, credentialID])
+}
+
+//------------------------------------------------------|
+//--csContent
+model Folder {
+  id        String    @id @default(cuid())
+  parentID  String?
+  parent    Folder?   @relation("ParentRelation", fields: [parentID], references: [id])
+  slug      String    @unique
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  createdBy String
+  updatedBy String
+  deletedBy String?
+  Content   Content[]
+  Folders   Folder[]  @relation("ParentRelation")
+}
+
+model Content {
+  id        String          @id @default(cuid())
+  folderID  String
+  folder    Folder          @relation(fields: [folderID], references: [id])
+  slug      String          @unique
+  title     String
+  intent    String
+  isActive  Boolean         @default(true)
+  activeOn  DateTime?
+  expiresOn DateTime?
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  deletedAt DateTime?
+  createdBy String
+  updatedBy String
+  deletedBy String?
+  assets    Asset[]
+  versions  Version[]
+  tags      TagsOnContent[]
+}
+
+model Version {
+  id        String    @id @default(cuid())
+  contentID String
+  content   Content   @relation(fields: [contentID], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  createdBy String
+  updatedBy String
+  deletedBy String?
+}
+
+model Instance {
+  id        String    @id @default(cuid())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  createdBy String
+  updatedBy String
+  deletedBy String?
+  interactions Interaction[]
+}
+
+model Asset {
+  id        String    @id @default(cuid())
+  contentID String
+  content   Content   @relation(fields: [contentID], references: [id])
+  name      String
+  url       String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  createdBy String
+  updatedBy String
+  deletedBy String?
+}
+
+model Tag {
+  name    String          @id @unique
+  content TagsOnContent[]
+}
+
+model TagsOnContent {
+  tagID      String
+  tag        Tag      @relation(fields: [tagID], references: [name])
+  contentID  String // relation scalar field (used in the `@relation` attribute above)
+  content    Content  @relation(fields: [contentID], references: [id])
+  assignedAt DateTime @default(now())
+  assignedBy String
+
+  @@id([tagID, contentID])
+}
+
+model Interaction {
+  id        String    @id @default(cuid())
+  instanceID String
+  instance   Instance   @relation(fields: [instanceID], references: [id])
+  name      String
+  url       String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  createdBy String
+  updatedBy String
+  deletedBy String?
+}

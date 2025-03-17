@@ -17,38 +17,24 @@
 	} from 'flowbite-svelte';
 	//import { authService } from '$lib/services/auth';
 	import { SearchOutline } from 'flowbite-svelte-icons';
-	import { goto } from '$app/navigation';
 	import { getInitialsFromName } from '$lib/utils/format';
 	import { PageMessages, CSNavItem } from '$lib/components';
+	import { SignOut } from '@auth/sveltekit/components';
+	import type { Session } from '@auth/core/types';
+	import { redirect } from '@sveltejs/kit';
 
-	// const as = authService();
-	// const cu = as.currentUser();
-
-	let { children } = $props();
+	let { children, data } = $props();
 
 	let pageCat = $derived(page.url.pathname)
-
-	const logoutUser = () => {
-		// as.signout().then((r) => {
-		// 	if (r) {
-		// 		goto('/login');
-		// 	}
-		// });
-	};
 
 	const isTLPage = (token:string):boolean => {
 		return pageCat.indexOf(token) > -1
 	}
 
-    let cu = {firstName: "Jeff", lastName: "Kody", profileImage: "", email: "jeph@jmk21.com"}
+    let cu = data.session?.user
 
 	onMount(async () => {
 		console.log('layout onMount');
-		// if (!as.authCheck()) {
-		// 	goto('/login');
-		// }
-
-		// as.refreshCycle();
 	});
 </script>
 
@@ -60,13 +46,13 @@
 	<div class="flex items-center md:order-3">
 		<DarkMode class="mr-2 text-2xl" />
 		<!-- <NotificationList /> -->
-		<Avatar id="avatar-menu" src={cu?.profileImage || ''} class="ml-6 cursor-pointer"
-			>{getInitialsFromName(cu?.firstName + ' ' + cu?.lastName || '')}</Avatar
+		<Avatar id="avatar-menu" src={cu?.image || ''} class="ml-6 cursor-pointer"
+			>{getInitialsFromName(cu?.name || '')}</Avatar
 		>
 	</div>
 	<Dropdown placement="bottom" triggeredBy="#avatar-menu">
 		<DropdownHeader>
-			<span class="block text-sm">{cu?.firstName}</span>
+			<span class="block text-sm">{cu?.name}</span>
 			<span class="block truncate text-sm font-medium">{cu?.email}</span>
 		</DropdownHeader>
 		<DropdownItem>
@@ -77,7 +63,15 @@
 		</DropdownItem>
 		<DropdownDivider />
 		<DropdownItem>
-			<button class="gb-initial" onclick={logoutUser}>Sign out</button>
+			<!-- <button class="gb-initial" onclick={logoutUser}>Sign out</button> -->
+			 <SignOut signOutPage="signout" className="w-full">
+				<div
+				slot="submitButton"
+				class=""
+			>
+				<button class="cursor-pointer"> Signout </button>
+			</div>
+			</SignOut>
 		</DropdownItem>
 	</Dropdown>
 
@@ -102,9 +96,8 @@
 	<div class="hidden justify-between items-center w-full lg:flex lg:w-auto lg:order-1">
 		<ul class="flex flex-col mt-4 space-x-6 font-medium lg:flex-row xl:space-x-8 lg:mt-0">
 			<CSNavItem   href="/home" active={isTLPage("/home")}>Home</CSNavItem>	
-			<CSNavItem   href="/project" active={isTLPage("/project")}>Projects</CSNavItem>	
-			<CSNavItem   href="/resource" active={isTLPage("/resource")}>Resources</CSNavItem>	
-			<CSNavItem   href="/roadmap" active={isTLPage("/roadmap")}>Roadmap</CSNavItem>	
+			<CSNavItem   href="/content" active={isTLPage("/content")}>Content</CSNavItem>	
+			<CSNavItem   href="/engagement" active={isTLPage("/engagement")}>Engagement</CSNavItem>	
 			<CSNavItem   href="/insight" active={isTLPage("/insight")}>Insights</CSNavItem>	
 		</ul>
 	</div>	
