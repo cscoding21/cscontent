@@ -11,8 +11,8 @@
 <CSSection>
 <h1>I'm home</h1>
 <ul>
-{#each data.summaries as s} 
-    <li>{s.name} - {s.id}</li>
+{#each data.users as s} 
+    <li>{s.provider} {s.userId} - {s.provider}</li>
 {/each}
 </ul>
 </CSSection>

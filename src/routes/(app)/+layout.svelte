@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, type Snippet } from 'svelte';
 	import { page } from '$app/state';
 	import logoImage from '$lib/assets/images/cscontent-logo-white.png?enhanced'
 
@@ -15,15 +15,16 @@
 		Button,
 		Input
 	} from 'flowbite-svelte';
-	//import { authService } from '$lib/services/auth';
 	import { SearchOutline } from 'flowbite-svelte-icons';
 	import { getInitialsFromName } from '$lib/utils/format';
 	import { PageMessages, CSNavItem } from '$lib/components';
 	import { SignOut } from '@auth/sveltekit/components';
-	import type { Session } from '@auth/core/types';
-	import { redirect } from '@sveltejs/kit';
 
-	let { children, data } = $props();
+	interface Props {
+		children: Snippet
+		data: any
+	}
+	let { children, data }:Props = $props();
 
 	let pageCat = $derived(page.url.pathname)
 
@@ -63,7 +64,6 @@
 		</DropdownItem>
 		<DropdownDivider />
 		<DropdownItem>
-			<!-- <button class="gb-initial" onclick={logoutUser}>Sign out</button> -->
 			 <SignOut signOutPage="signout" className="w-full">
 				<div
 				slot="submitButton"

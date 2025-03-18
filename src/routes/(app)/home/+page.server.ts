@@ -1,11 +1,10 @@
+import { prisma } from '$lib/services/prisma'
 
 
-export function load() {
+export async function load() {
+    const users = await prisma.account.findMany()
+
 	return {
-		summaries: [
-            { id: 1, name: "Sum 1"},
-            { id: 2, name: "Sum 2"},
-            { id: 3, name: "Sum 3"},
-        ]
+		users
 	};
 }
