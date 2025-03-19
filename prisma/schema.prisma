@@ -107,8 +107,8 @@ model Folder {
 
 model Content {
   id        String    @id @default(cuid())
-  folderID  String
-  folder    Folder    @relation(fields: [folderID], references: [id])
+  parentID  String
+  parent    Folder    @relation(fields: [parentID], references: [id])
   slug      String    @unique
   title     String
   intent    String

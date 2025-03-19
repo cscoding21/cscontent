@@ -7,7 +7,7 @@ export const slugify = (name:string):string => {
     if(!name)
         return ''
 
-    return name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+    return name.toLowerCase().trim().replace(/ /g, '-').replace(/[^\w-]+/g, '');
 }
 
 /**
@@ -17,4 +17,15 @@ export const slugify = (name:string):string => {
 export const newID = ():string => {
     const uuid = crypto.randomUUID();
     return uuid
+}
+
+/**
+ * safely return a user's email from the app locals object
+ * @param a SvelteKit app.locals object
+ * @returns the current user's email
+ */
+export const getUserEmail = async (l:App.Locals):Promise<string> => {
+    const session = await l.auth()
+
+    return session?.user?.email || "";
 }

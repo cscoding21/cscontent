@@ -1,10 +1,16 @@
 import type { ObjectSchema, Maybe, AnyObject } from 'yup';
-import type { SelectOptionType } from 'flowbite-svelte';
+
 
 function isObjKey<T>(key: any, obj: any): key is keyof T {
 	return key in obj;
 }
 
+/**
+ * take in an object and re-shape it to conform to the passed in yup schema.  This mostly removes undefined fields
+ * @param input any object
+ * @param schema a yup schema
+ * @returns an object that conforms to the passed schema
+ */
 export function coalesceToType<T>(input: any, schema: ObjectSchema<Maybe<AnyObject>>): T {
 	const out: T = <T>{};
 	const describe = schema.describe();
@@ -18,15 +24,17 @@ export function coalesceToType<T>(input: any, schema: ObjectSchema<Maybe<AnyObje
 	return out;
 }
 
-export const parseErrors = (err: any) => {
-	return err.inner.reduce((acc: any, err: any) => {
-		return { ...acc, [err.path]: err.message };
-	}, {});
-};
+/**
+ * hold before calling a function
+ * @param callback function to call
+ * @param wait milliseconds to wait
+ * @returns 
+ */
+export const debounce = (callback: Function, wait = 300) => {
+    let timeout: ReturnType<typeof setTimeout>;
 
-export const mergeErrors = (err1: any, err2: any) => {
-	return {
-		...err1,
-		...err2
-	};
+    return (...args: any[]) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => callback(...args), wait);
+    };
 };

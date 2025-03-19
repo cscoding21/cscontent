@@ -1,21 +1,14 @@
 <script lang="ts">
-	import { parseErrors, mergeErrors } from '$lib/forms/helpers';
-	import { loginForm, loginSchema } from '$lib/forms/login.validation';
-	import { goto } from '$app/navigation';
-	import { EmailInput, PasswordInput, AlertError, SectionHeading } from '$lib/components';
-	import { enhance } from '$app/forms';
-	import { SignIn, SignOut } from '@auth/sveltekit/components';
+	import { SectionHeading } from '$lib/components';
+	import { SignIn } from '@auth/sveltekit/components';
 	import { GithubSolid, GoogleSolid } from 'flowbite-svelte-icons';
 	import { Button } from 'flowbite-svelte';
-	import SectionSubHeading from '$lib/components/formatting/SectionSubHeading.svelte';
-
-	let errors: any = $state({});
 
 	interface Props {
 		data:any
 		form?:any
 	}
-	let { data, form }:Props = $props()
+	let { form }:Props = $props()
 
 	console.log(form)
 </script>
