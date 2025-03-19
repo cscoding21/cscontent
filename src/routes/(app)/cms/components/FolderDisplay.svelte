@@ -15,7 +15,7 @@
 <CSSection>
     <SectionSubHeading>
         <FolderOutline class="float-left mr-4" />
-        <a href="/content/folder/{folder.slug}">{folder.name}</a>
+        <a href="/cms/folder/{folder.slug}">{folder.name}</a>
     </SectionSubHeading>
 
     {#if folder.parentID != null}

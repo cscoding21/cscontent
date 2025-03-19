@@ -13,7 +13,7 @@
     const { form, errors, message, enhance } = superForm(data.form);
     const {
 		delayed,
-		submit: submitCheckUsername,
+		submit: submitCheckFolderName,
 		enhance: submitEnhance
 	} = superForm(
 		{ name: '' },
@@ -31,7 +31,7 @@
 		}
 	);
 
-    const checkFolder = debounce(submitCheckUsername, 200);
+    const checkFolder = debounce(submitCheckFolderName, 200);
 
 </script>
 
@@ -42,7 +42,7 @@
         {$message}
     </div>
 {/if}
-<form method="POST" class="max-w-sm mx-auto" action="/content/folder/?/addFold" use:enhance>
+<form method="POST" class="max-w-sm mx-auto" action="/cms/folder/?/addFold" use:enhance>
     <input type="hidden" name="parentID" value={parentID} />
     <div class="mb-5">
         <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Create a new folder</label>
@@ -57,5 +57,5 @@
     </div>
 </form>
 
-<form id="check" method="POST" action="/content/folder/?/check" use:submitEnhance></form>
+<form id="check" method="POST" action="/cms/folder/?/check" use:submitEnhance></form>
 </CSSection>

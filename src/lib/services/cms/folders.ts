@@ -39,7 +39,7 @@ export const getFolder = async (slugOrId:string) => {
                 },
                 },
                 content: {
-                  select: { id: true, title: true },
+                  select: { id: true, title: true, slug: true },
                 }
               },
         })

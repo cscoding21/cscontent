@@ -101,8 +101,8 @@ model Folder {
   updatedBy String
   deletedBy String?
 
-  content   Content[]
-  folders   Folder[]  @relation("ParentRelation")
+  content Content[]
+  folders Folder[]  @relation("ParentRelation")
 }
 
 model Content {
@@ -116,25 +116,26 @@ model Content {
   activeOn  DateTime?
   expiresOn DateTime?
 
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
   createdBy String
   updatedBy String
   deletedBy String?
 
-  assets    Asset[]
-  versions  Version[]
-  tags      TagsOnContent[]
+  assets   Asset[]
+  versions Version[]
+  tags     TagsOnContent[]
 }
 
 model Version {
   id        String  @id @default(cuid())
+  name      String
   contentID String
   content   Content @relation(fields: [contentID], references: [id])
 
-  createdAt DateTime             @default(now())
-  updatedAt DateTime             @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
   createdBy String
   updatedBy String
@@ -144,15 +145,15 @@ model Version {
 }
 
 model Instance {
-  id           String               @id @default(cuid())
-  body         String
+  id   String @id @default(cuid())
+  body String
 
-  createdAt    DateTime             @default(now())
-  updatedAt    DateTime             @updatedAt
-  deletedAt    DateTime?
-  createdBy    String
-  updatedBy    String
-  deletedBy    String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  createdBy String
+  updatedBy String
+  deletedBy String?
 
   interactions Interaction[]
   versions     VersionsOnInstance[]
@@ -170,9 +171,9 @@ model VersionsOnInstance {
 }
 
 model Asset {
-  id        String    @id @default(cuid())
+  id        String  @id @default(cuid())
   contentID String
-  content   Content   @relation(fields: [contentID], references: [id])
+  content   Content @relation(fields: [contentID], references: [id])
   name      String
   url       String
 
@@ -201,16 +202,16 @@ model TagsOnContent {
 }
 
 model Interaction {
-  id         String    @id @default(cuid())
+  id         String   @id @default(cuid())
   instanceID String
-  instance   Instance  @relation(fields: [instanceID], references: [id])
+  instance   Instance @relation(fields: [instanceID], references: [id])
   name       String
   url        String
 
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  deletedAt  DateTime?
-  createdBy  String
-  updatedBy  String
-  deletedBy  String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  createdBy String
+  updatedBy String
+  deletedBy String?
 }

@@ -12,6 +12,42 @@ export const findContent = async (parentID:string) => {
 } 
 
 
+/**
+ * return a folder
+ * @param slugOrId the slug or ID of the folder to retrieve
+ */
+export const getContent = async (slugOrId:string) => {
+  const folder =  await prisma.content.findFirstOrThrow(
+      { 
+          where: {
+              OR: [
+                  { slug: { equals: slugOrId } },
+                  { id: { equals: slugOrId } },
+              ],
+          },
+          select: {
+              title: true,
+              id: true,
+              slug: true,
+              parentID: true,
+              intent: true,
+              isActive: true,
+              activeOn: true,
+              expiresOn: true
+          }
+      })
+
+  return folder
+}
+
+
+/**
+ * create a new content element to a given folder
+ * @param userID the user id performing the operation
+ * @param parentID the folder id to add the content to
+ * @param title the title of the content
+ * @param intent the intent of the content.  This can be used
+ */
 export const newContent = async (userID:string, parentID:string, title:string, intent:string) => {
     const slug = slugify(title);
     const id = newID()
@@ -28,4 +64,81 @@ export const newContent = async (userID:string, parentID:string, title:string, i
           updatedBy: userID
         },
       })
+
+    const version = await prisma.version.create({
+        data: {
+            id: newID(),
+            name: "latest",
+            contentID: content.id,
+            createdBy: userID,
+            updatedBy: userID
+          },
+    })
+
+    return content;
+}
+
+/**
+ * update an existing piece of content
+ * @param userID the user id performing the operation
+ * @param id the id of the content to update
+ * @param title the udpated title
+ * @param intent the udpated intent
+ * @param isActive true if content is active
+ * @param activeOn date content becomes available
+ * @param expiresOn date content expires
+ */
+export const updateContent = async (
+    userID:string, 
+    id:string, 
+    title:string, 
+    intent:string, 
+    isActive: boolean|undefined, 
+    activeOn:Date|undefined, 
+    expiresOn:Date|undefined) => {
+
+    const content = await prisma.content.update({
+        data: {
+          title: title,
+          intent: intent,
+          updatedBy: userID,
+          isActive: isActive,
+          activeOn: activeOn,
+          expiresOn: expiresOn
+        },
+        where: { id: id }
+      })
+
+    return content
+}
+
+/**
+ * check to see if a folder name already exists in the database
+ * @param name name of the folder
+ * @returns a true/false result based on if the folder name currently exists
+ */
+export const contentNameAvailable = async (title:string):Promise<boolean> => {
+  const exists = await prisma.content.count({
+      where: {
+          title: {
+              equals: title,
+              mode: 'insensitive', // Default value: default
+        },
+      }
+  })
+  
+  return exists === 0
+}
+
+/**
+* delete the specified folder based on the passed in ID
+* @param userID the id of the user performing the operation
+* @param id the id of the folder to delete
+*/
+export const deleteContent = async (userID:string, id:string) => {
+  const content = await prisma.content.delete({
+      where: {
+          id: id,
+        },
+    })
 }

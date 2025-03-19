@@ -6,7 +6,7 @@ import { yup } from 'sveltekit-superforms/adapters';
 export async function load({ params }) {
     let data = params;
 
-    const folder = await getFolder(data.slug)
+    const folder = await getFolder(data.fslug)
     const form = await superValidate(yup(folderSchema));
 
     return { folder, form };

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount, type Snippet } from 'svelte';
+	import { type Snippet } from 'svelte';
 	import { page } from '$app/state';
 	import logoImage from '$lib/assets/images/cscontent-logo-white.png?enhanced'
 
@@ -33,10 +33,6 @@
 	}
 
     let cu = data.session?.user
-
-	onMount(async () => {
-		console.log('layout onMount');
-	});
 </script>
 
 <div class="w-full h-screen">
@@ -96,7 +92,7 @@
 	<div class="hidden justify-between items-center w-full lg:flex lg:w-auto lg:order-1">
 		<ul class="flex flex-col mt-4 space-x-6 font-medium lg:flex-row xl:space-x-8 lg:mt-0">
 			<CSNavItem   href="/home" active={isTLPage("/home")}>Home</CSNavItem>	
-			<CSNavItem   href="/content" active={isTLPage("/content")}>Content</CSNavItem>	
+			<CSNavItem   href="/cms" active={isTLPage("/cms")}>Content</CSNavItem>	
 			<CSNavItem   href="/engagement" active={isTLPage("/engagement")}>Engagement</CSNavItem>	
 			<CSNavItem   href="/insight" active={isTLPage("/insight")}>Insights</CSNavItem>	
 		</ul>

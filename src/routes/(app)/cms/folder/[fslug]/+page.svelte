@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { PageHeading, SectionSubHeading } from "$lib/components";
-	import AddContent from "../../components/AddContent.svelte";
 	import AddFolder from "../../components/AddFolder.svelte";
 	import FolderDisplay from "../../components/FolderDisplay.svelte";
 
@@ -21,7 +20,7 @@
                 {#if data.folder.folders}
                 <ul>
                 {#each data.folder.folders as subFolder}
-                    <li>
+                    <li class="mb-2">
                         <FolderDisplay folder={subFolder} />
                     </li>
                 {/each}
@@ -33,7 +32,15 @@
             <div class="flex-none  w-2/3">
                 <SectionSubHeading>Content</SectionSubHeading>
 
-                <div class="mt-4"><AddContent {data} parentID={data.folder.id} /></div>
+                <div class="mt-4">
+                    <ul>
+                    {#each data.folder.content as c}
+                        <li><a href="/cms/folder/{data.folder.slug}/content/{c.slug}">{c.title}</a></li>
+                    {/each}
+                    </ul>
+                </div>
+
+                <a href="/cms/folder/{data.folder.slug}/content">Add new content</a>
             </div>
         </div>
 

@@ -59,6 +59,7 @@
 		"@auth/prisma-adapter": "^2.8.0",
 		"@auth/sveltekit": "^1.8.0",
 		"@langchain/core": "^0.3.42",
+		"@langchain/ollama": "^0.2.0",
 		"@prisma/client": "^6.5.0",
 		"langchain": "^0.3.19"
 	}
