@@ -1,6 +1,6 @@
 import { contentSchema } from '$lib/forms/content.validation';
 import { idSchema } from '$lib/forms/id.validation.js';
-import { contentNameAvailable, deleteContent, getContent, newContent, updateContent } from '$lib/services/cms/content.js';
+import { contentNameAvailable, deleteContent, findContentInstances, getContent, newContent, updateContent } from '$lib/services/cms/content.js';
 import { getUserEmail } from '$lib/services/cms/helpers.js';
 import { fail, setError, superValidate, type Infer, type SuperValidated } from 'sveltekit-superforms';
 import { yup } from 'sveltekit-superforms/adapters';
@@ -18,13 +18,16 @@ export async function load({ params }) {
     console.log("params", data)
 
     let content:any = null
+    let instances:any = null
 
-    if(slug)
+    if(slug) {
         content = await getContent(slug)
+        instances = await findContentInstances(content.id)
+    }
 
     const form = await superValidate(content, yup(contentSchema));
 
-    return { content, folder, form };
+    return { content, instances, folder, form };
 }
 
 

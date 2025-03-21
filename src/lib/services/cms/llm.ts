@@ -1,14 +1,34 @@
 import { Ollama } from "@langchain/ollama";
-import { HumanMessage, SystemMessage } from "@langchain/core/messages";
+import { ChatPromptTemplate } from "@langchain/core/prompts";
+import { StringOutputParser } from "@langchain/core/output_parsers";
 
 
-export const generate = async (ask:string):Promise<string> => {
+export const translateMessage = async (ask:string):Promise<string> => {
+    const model = new Ollama({ model: "llama3" });
+    const systemTemplate = "Translate the following into {language}:";
+    const parser = new StringOutputParser();
+
+    const promptTemplate = ChatPromptTemplate.fromMessages([
+        ["system", systemTemplate],
+        ["user", "{text}"],
+    ]);
+
+    const chain = promptTemplate.pipe(model).pipe(parser);
+
+    return await chain.invoke({ language: "french", text: ask });
+}
+
+export const generateFromIntent = async (ask:string):Promise<string> => {
     const model = new Ollama({ model: "mistral" });
+    const systemTemplate = "Translate the following into {language}:";
+    const parser = new StringOutputParser();
 
-    const messages = [
-        new SystemMessage("Translate the following from English into Italian.  Only provide the translated result and not any additional context or notes."),
-        new HumanMessage(ask),
-    ];
+    const promptTemplate = ChatPromptTemplate.fromMessages([
+        ["system", systemTemplate],
+        ["user", "{text}"],
+    ]);
 
-    return model.invoke(messages);
+    const chain = promptTemplate.pipe(model).pipe(parser);
+
+    return await chain.invoke({ language: "french", text: ask });
 }

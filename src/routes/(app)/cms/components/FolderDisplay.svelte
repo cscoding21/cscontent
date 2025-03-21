@@ -23,7 +23,7 @@
     {/if}
 
     <div class="text-sm">Created by: <b>{folder.createdBy}</b></div>
-    <form method="POST" action="/content/folder/?/delFold" use:enhance>
+    <form method="POST" action="/cms/folder/?/delFold" use:enhance>
         <input type="hidden" name="id" value={folder.id} />
         <button type="submit" class="text-orange-400">delete</button>
     </form>

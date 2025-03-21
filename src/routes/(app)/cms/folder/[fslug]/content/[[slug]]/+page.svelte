@@ -36,6 +36,8 @@
 
 </script>
 
+<code>{JSON.stringify(data.instances)}</code>
+
 <div class="p-4">
 <CSSection>
     <h2>Parent: <a href="/cms/folder/{data.folder.slug}">{data.folder.name}</a></h2>
@@ -54,8 +56,10 @@
     </div>
 {/if}
 <form method="POST" class="mx-auto" action="/cms/folder/{data.folder.slug}/content/?/{action}" use:enhance>
-    <input type="hidden" name="parentID" value={data.folder.id} />
+    {#if action == "updateCont"}
     <input type="hidden" name="id" value={data.content.id} />
+    {/if}
+    <input type="hidden" name="parentID" value={data.folder.id} />
     <div class="mb-5">
         <label for="title" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Content title </label>
         <input form="check" name="title" aria-invalid={$errors.title ? 'true' : undefined} bind:value={$form.title} oninput={checkContent} class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Content title" />
@@ -81,6 +85,17 @@
 {#if data.content}
 <CSSection>
     <SectionSubHeading>Content instances</SectionSubHeading>
+
+    {#if data.instances.length > 0}
+    <ul>
+        {#each data.instances as inst}
+            <li>
+                <h3>{inst.language}</h3>    
+                {inst.body}
+            </li>
+        {/each}
+    </ul>
+    {/if}
 </CSSection>
 {/if}
 </div>

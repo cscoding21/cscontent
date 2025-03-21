@@ -42,6 +42,17 @@ export const getContent = async (slugOrId:string) => {
 
 
 /**
+ * return all of the instances for a content container
+ * @param contentID the content container 
+ * @returns a list of all instances
+ */
+export const findContentInstances = async (contentID:string) => {
+  return await prisma.instance.findMany({ 
+    where: { contentID }})
+}
+
+
+/**
  * create a new content element to a given folder
  * @param userID the user id performing the operation
  * @param parentID the folder id to add the content to
@@ -51,8 +62,12 @@ export const getContent = async (slugOrId:string) => {
 export const newContent = async (userID:string, parentID:string, title:string, intent:string) => {
     const slug = slugify(title);
     const id = newID()
+    const lastestVersionID = newID()
+    const defaultVersionID = newID()
+    const defaultInstanceID = newID()
 
-    const content = await prisma.content.create({
+    const [ content, versions, instance, versionOnInstances] = await prisma.$transaction([
+      prisma.content.create({
         data: {
           id: id,
           title: title,
@@ -63,19 +78,35 @@ export const newContent = async (userID:string, parentID:string, title:string, i
           createdBy: userID,
           updatedBy: userID
         },
-      })
-
-    const version = await prisma.version.create({
+      }),
+      prisma.version.createMany({
+        data: [
+          { id: lastestVersionID, name: 'latest', contentID: id, createdBy: userID, updatedBy: userID},
+          { id: defaultVersionID, name: 'default', contentID: id, createdBy: userID, updatedBy: userID},
+        ],
+        skipDuplicates: true,
+      }),
+      prisma.instance.create({
         data: {
-            id: newID(),
-            name: "latest",
-            contentID: content.id,
-            createdBy: userID,
-            updatedBy: userID
-          },
-    })
+          contentID: id,
+          id: defaultInstanceID,
+          language: "en-us",
+          body: intent,
+          createdBy: userID,
+          updatedBy: userID
+        }
+      }),
+      prisma.versionsOnInstance.createMany({
+        data: [
+          { instanceID: defaultInstanceID, versionID: lastestVersionID, assignedBy: userID},
+          { instanceID: defaultInstanceID, versionID: defaultVersionID, assignedBy: userID},
+        ],
+        skipDuplicates: true,
+      })
+    ]
+  )
 
-    return content;
+  return content;
 }
 
 /**

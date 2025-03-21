@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { PageHeading, SectionSubHeading } from "$lib/components";
+	import { CSSection, PageHeading, SectionSubHeading } from "$lib/components";
+	import { Alert, Table, TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell } from "flowbite-svelte";
 	import AddFolder from "../../components/AddFolder.svelte";
 	import FolderDisplay from "../../components/FolderDisplay.svelte";
 
@@ -13,7 +14,6 @@
 
 <div class='p-4'>
     <PageHeading title={"Folder: " + data.folder.name}></PageHeading>
-        <!-- <code>{JSON.stringify(data.folder)}</code> -->
         <div class="flex">
             <div class="flex-none mr-8 w-1/3">
                 <SectionSubHeading>Child Folders</SectionSubHeading>
@@ -25,22 +25,53 @@
                     </li>
                 {/each}
                 </ul>
+                {:else}
+                    <Alert>
+                        This folder has no subfolders
+                    </Alert>
                 {/if}
 
                 <div class="mt-4"><AddFolder {data} parentID={data.folder.id} /></div>
             </div>
-            <div class="flex-none  w-2/3">
+            <div class="flex-none">
                 <SectionSubHeading>Content</SectionSubHeading>
 
+            <CSSection>
                 <div class="mt-4">
-                    <ul>
-                    {#each data.folder.content as c}
-                        <li><a href="/cms/folder/{data.folder.slug}/content/{c.slug}">{c.title}</a></li>
-                    {/each}
-                    </ul>
+                {#if data.folder.content.length > 0}
+                    <Table>
+                        <TableHead>
+                            <TableHeadCell>Content</TableHeadCell>
+                            <TableHeadCell>Tags</TableHeadCell>
+                            <TableHeadCell>Active</TableHeadCell>
+                            <TableHeadCell>Active Date</TableHeadCell>
+                            <TableHeadCell>Expire Date</TableHeadCell>
+                            <TableHeadCell>
+                                <span class="sr-only">Edit</span>
+                            </TableHeadCell>
+                        </TableHead>
+                        <TableBody>
+                            {#each data.folder.content as c}
+                            <TableBodyRow>
+                                <TableBodyCell><a href="/cms/folder/{data.folder.slug}/content/{c.slug}">{c.title}</a></TableBodyCell>
+                                <TableBodyCell></TableBodyCell>
+                                <TableBodyCell>{c.isActive}</TableBodyCell>
+                                <TableBodyCell>{c.activeOn}</TableBodyCell>
+                                <TableBodyCell>{c.expiresOn}</TableBodyCell>
+                                <TableBodyCell></TableBodyCell>
+                            </TableBodyRow>
+                            {/each}
+                        </TableBody>
+                    </Table>
+                {:else}
+                    No content yet
+                {/if}
+            
                 </div>
 
-                <a href="/cms/folder/{data.folder.slug}/content">Add new content</a>
+            </CSSection>
+                <a class="button text-yellow-100" href="/cms/folder/{data.folder.slug}/content">Add new content</a>
+            
             </div>
         </div>
 
