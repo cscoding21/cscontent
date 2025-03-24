@@ -33,7 +33,7 @@ export const getContent = async (slugOrId:string) => {
               intent: true,
               isActive: true,
               activeOn: true,
-              expiresOn: true
+              expiresOn: true,
           }
       })
 
@@ -46,9 +46,17 @@ export const getContent = async (slugOrId:string) => {
  * @param contentID the content container 
  * @returns a list of all instances
  */
-export const findContentInstances = async (contentID:string) => {
+export const findContentInstances = async (contentID:string, versionID:string) => {
   return await prisma.instance.findMany({ 
-    where: { contentID }})
+    where: { contentID, versionID },
+    include: {
+      version: {
+        select: {
+          number: true
+        }
+      }
+    }
+  })
 }
 
 
@@ -63,10 +71,9 @@ export const newContent = async (userID:string, parentID:string, title:string, i
     const slug = slugify(title);
     const id = newID()
     const lastestVersionID = newID()
-    const defaultVersionID = newID()
     const defaultInstanceID = newID()
 
-    const [ content, versions, instance, versionOnInstances] = await prisma.$transaction([
+    const [ content, versions, instance ] = await prisma.$transaction([
       prisma.content.create({
         data: {
           id: id,
@@ -81,14 +88,15 @@ export const newContent = async (userID:string, parentID:string, title:string, i
       }),
       prisma.version.createMany({
         data: [
-          { id: lastestVersionID, name: 'latest', contentID: id, createdBy: userID, updatedBy: userID},
-          { id: defaultVersionID, name: 'default', contentID: id, createdBy: userID, updatedBy: userID},
+          { id: lastestVersionID, number: 1, contentID: id, createdBy: userID, updatedBy: userID, isPublished: false},
         ],
         skipDuplicates: true,
       }),
       prisma.instance.create({
         data: {
           contentID: id,
+          versionID:lastestVersionID,
+          isDefault: true,
           id: defaultInstanceID,
           language: "en-us",
           body: intent,
@@ -96,13 +104,6 @@ export const newContent = async (userID:string, parentID:string, title:string, i
           updatedBy: userID
         }
       }),
-      prisma.versionsOnInstance.createMany({
-        data: [
-          { instanceID: defaultInstanceID, versionID: lastestVersionID, assignedBy: userID},
-          { instanceID: defaultInstanceID, versionID: defaultVersionID, assignedBy: userID},
-        ],
-        skipDuplicates: true,
-      })
     ]
   )
 
@@ -125,8 +126,8 @@ export const updateContent = async (
     title:string, 
     intent:string, 
     isActive: boolean|undefined, 
-    activeOn:Date|undefined, 
-    expiresOn:Date|undefined) => {
+    activeOn:Date|null|undefined, 
+    expiresOn:Date|null|undefined) => {
 
     const content = await prisma.content.update({
         data: {

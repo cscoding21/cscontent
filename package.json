@@ -61,6 +61,7 @@
 		"@langchain/core": "^0.3.42",
 		"@langchain/ollama": "^0.2.0",
 		"@prisma/client": "^6.5.0",
-		"langchain": "^0.3.19"
+		"langchain": "^0.3.19",
+		"svelte-lexical": "^0.5.3"
 	}
 }

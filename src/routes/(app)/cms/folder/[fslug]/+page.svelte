@@ -3,6 +3,7 @@
 	import { Alert, Table, TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell } from "flowbite-svelte";
 	import AddFolder from "../../components/AddFolder.svelte";
 	import FolderDisplay from "../../components/FolderDisplay.svelte";
+	import { CheckCircleSolid, CircleMinusSolid } from "flowbite-svelte-icons";
 
     interface Props {
         data: any
@@ -14,8 +15,8 @@
 
 <div class='p-4'>
     <PageHeading title={"Folder: " + data.folder.name}></PageHeading>
-        <div class="flex">
-            <div class="flex-none mr-8 w-1/3">
+        <div class="grid grid-cols-3 gap-4">
+            <div class="">
                 <SectionSubHeading>Child Folders</SectionSubHeading>
                 {#if data.folder.folders}
                 <ul>
@@ -33,7 +34,7 @@
 
                 <div class="mt-4"><AddFolder {data} parentID={data.folder.id} /></div>
             </div>
-            <div class="flex-none">
+            <div class="col-span-2">
                 <SectionSubHeading>Content</SectionSubHeading>
 
             <CSSection>
@@ -55,7 +56,13 @@
                             <TableBodyRow>
                                 <TableBodyCell><a href="/cms/folder/{data.folder.slug}/content/{c.slug}">{c.title}</a></TableBodyCell>
                                 <TableBodyCell></TableBodyCell>
-                                <TableBodyCell>{c.isActive}</TableBodyCell>
+                                <TableBodyCell class="content-center">
+                                    {#if c.isActive}
+                                        <CheckCircleSolid color="green" />
+                                    {:else}
+                                        <CircleMinusSolid color="gray" />
+                                    {/if}
+                                </TableBodyCell>
                                 <TableBodyCell>{c.activeOn}</TableBodyCell>
                                 <TableBodyCell>{c.expiresOn}</TableBodyCell>
                                 <TableBodyCell></TableBodyCell>

@@ -7,7 +7,8 @@ import { slugify, newID } from './helpers';
  */
 export const findFolders = async (parentID:string|null) => {
     return await prisma.folder.findMany({ 
-        where: { parentID: parentID }})
+        where: { parentID: parentID },
+    })
 } 
 
 
@@ -29,6 +30,7 @@ export const getFolder = async (slugOrId:string) => {
                 id: true,
                 slug: true,
                 parentID: true,
+                parent: true,
                 folders: {
                   select: { 
                     name: true,

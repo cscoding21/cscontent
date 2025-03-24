@@ -124,16 +124,17 @@ model Content {
   deletedBy String?
 
   instances Instance[]
-  assets   Asset[]
-  versions Version[]
-  tags     TagsOnContent[]
+  assets    Asset[]
+  versions  Version[]
+  tags      TagsOnContent[]
 }
 
 model Version {
-  id        String  @id @default(cuid())
-  name      String
-  contentID String
-  content   Content @relation(fields: [contentID], references: [id])
+  id          String  @id @default(cuid())
+  number      Int
+  contentID   String
+  content     Content @relation(fields: [contentID], references: [id])
+  isPublished Boolean
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -142,15 +143,19 @@ model Version {
   updatedBy String
   deletedBy String?
 
-  instances VersionsOnInstance[]
+  instances Instance[]
 }
 
 model Instance {
-  id   String @id @default(cuid())
-  body String
-  language String
-  contentID String
-  content   Content @relation(fields: [contentID], references: [id])
+  id             String  @id @default(cuid())
+  body           String
+  additionalData Json?
+  language       String
+  isDefault      Boolean
+  contentID      String
+  content        Content @relation(fields: [contentID], references: [id])
+  versionID      String
+  version        Version @relation(fields: [versionID], references: [id])
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -160,19 +165,18 @@ model Instance {
   deletedBy String?
 
   interactions Interaction[]
-  versions     VersionsOnInstance[]
 }
 
-model VersionsOnInstance {
-  version    Version  @relation(fields: [versionID], references: [id])
-  versionID  String // relation scalar field (used in the `@relation` attribute above)
-  instance   Instance @relation(fields: [instanceID], references: [id])
-  instanceID String // relation scalar field (used in the `@relation` attribute above)
-  assignedAt DateTime @default(now())
-  assignedBy String
+// model VersionsOnInstance {
+//   version    Version  @relation(fields: [versionID], references: [id])
+//   versionID  String // relation scalar field (used in the `@relation` attribute above)
+//   instance   Instance @relation(fields: [instanceID], references: [id])
+//   instanceID String // relation scalar field (used in the `@relation` attribute above)
+//   assignedAt DateTime @default(now())
+//   assignedBy String
 
-  @@id([versionID, instanceID])
-}
+//   @@id([versionID, instanceID])
+// }
 
 model Asset {
   id        String  @id @default(cuid())

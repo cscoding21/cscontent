@@ -1,12 +1,15 @@
 import { contentSchema } from '$lib/forms/content.validation';
 import { idSchema } from '$lib/forms/id.validation.js';
-import { contentNameAvailable, deleteContent, findContentInstances, getContent, newContent, updateContent } from '$lib/services/cms/content.js';
+import { contentNameAvailable, deleteContent, findContentInstances, getContent, newContent, updateContent } from '$lib/services/cms/content';
+import { findContentVersions } from '$lib/services/cms/versions'
 import { getUserEmail } from '$lib/services/cms/helpers.js';
 import { fail, setError, superValidate, type Infer, type SuperValidated } from 'sveltekit-superforms';
 import { yup } from 'sveltekit-superforms/adapters';
 import type { Actions } from './$types';
 import { getFolder } from '$lib/services/cms/folders';
 import { redirect } from '@sveltejs/kit';
+import type { Version } from '@prisma/client';
+import { findContentTags } from '$lib/services/cms/tags';
 
 export async function load({ params }) {
     let data = params;
@@ -15,19 +18,26 @@ export async function load({ params }) {
     const fslug = data.fslug
     const folder = await getFolder(fslug)
 
-    console.log("params", data)
+    let content = await getContent(slug)
+    let versions = await findContentVersions(content.id)
+    let instanceVersion = getPublishedVersionID(versions)
+    let instances = await findContentInstances(content.id, instanceVersion)
+    let tags = await findContentTags(content.id)
 
-    let content:any = null
-    let instances:any = null
-
-    if(slug) {
-        content = await getContent(slug)
-        instances = await findContentInstances(content.id)
-    }
 
     const form = await superValidate(content, yup(contentSchema));
 
-    return { content, instances, folder, form };
+    return { content, instances, versions, folder, form, tags };
+}
+
+const getPublishedVersionID = (versions:Version[]):string => {
+    let ver = versions.filter(v => v.isPublished)
+
+    if(ver.length > 0) {
+        return ver[0].id
+    }
+
+    return versions[0].id
 }
 
 
@@ -43,19 +53,6 @@ const evaluateName = async (form: SuperValidated<Infer<typeof contentSchema>>) =
 
 
 export const actions = {
-    addCont: async ({ request, locals }) => {
-        const form = await superValidate(request, yup(contentSchema));
-
-        const ok = await evaluateName(form)
-        if (!form.valid || !ok) {
-            return fail(400, { form });
-        }
-
-        const nc = await newContent(await getUserEmail(locals), form.data.parentID, form.data.title, form.data.intent)
-        const fold = await getFolder(nc.parentID)
-
-        redirect(303, '/cms/folder/' + fold.slug + "/content/" + nc.slug)
-    },
     updateCont: async ({ request, locals }) => {
         const form = await superValidate(request, yup(contentSchema));
 

@@ -6,6 +6,6 @@ export const contentSchema = yup.object().shape({
     parentID: yup.string().required(),
     intent: yup.string().required(),
     isActive: yup.bool(),
-    activeOn: yup.date().optional(),
-    expiresOn: yup.date().optional()
-});
+    activeOn: yup.date().nullable(),
+    expiresOn: yup.date().nullable()
+})
