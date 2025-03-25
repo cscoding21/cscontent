@@ -134,7 +134,8 @@ model Version {
   number      Int
   contentID   String
   content     Content @relation(fields: [contentID], references: [id])
-  isPublished Boolean
+  isPublished Boolean @default(false)
+  env         String?
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -148,7 +149,8 @@ model Version {
 
 model Instance {
   id             String  @id @default(cuid())
-  body           String
+  meta           String?
+  body           Json
   additionalData Json?
   language       String
   isDefault      Boolean
@@ -166,17 +168,6 @@ model Instance {
 
   interactions Interaction[]
 }
-
-// model VersionsOnInstance {
-//   version    Version  @relation(fields: [versionID], references: [id])
-//   versionID  String // relation scalar field (used in the `@relation` attribute above)
-//   instance   Instance @relation(fields: [instanceID], references: [id])
-//   instanceID String // relation scalar field (used in the `@relation` attribute above)
-//   assignedAt DateTime @default(now())
-//   assignedBy String
-
-//   @@id([versionID, instanceID])
-// }
 
 model Asset {
   id        String  @id @default(cuid())

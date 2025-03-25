@@ -14,6 +14,7 @@ export { default as SectionSubHeading } from './formatting/SectionSubHeading.sve
 
 //---Forms
 export { default as EmailInput } from './forms/EmailInput.svelte';
+export { default as InPlaceEditor } from './forms/InPlaceEdit.svelte';
 export { default as FormErrorMessage } from './forms/FormErrorMessage.svelte';
 export { default as PasswordInput } from './forms/PasswordInput.svelte';
 

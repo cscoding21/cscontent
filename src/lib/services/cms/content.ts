@@ -40,26 +40,6 @@ export const getContent = async (slugOrId:string) => {
   return folder
 }
 
-
-/**
- * return all of the instances for a content container
- * @param contentID the content container 
- * @returns a list of all instances
- */
-export const findContentInstances = async (contentID:string, versionID:string) => {
-  return await prisma.instance.findMany({ 
-    where: { contentID, versionID },
-    include: {
-      version: {
-        select: {
-          number: true
-        }
-      }
-    }
-  })
-}
-
-
 /**
  * create a new content element to a given folder
  * @param userID the user id performing the operation
@@ -88,7 +68,15 @@ export const newContent = async (userID:string, parentID:string, title:string, i
       }),
       prisma.version.createMany({
         data: [
-          { id: lastestVersionID, number: 1, contentID: id, createdBy: userID, updatedBy: userID, isPublished: false},
+          { 
+            id: lastestVersionID, 
+            number: 1, 
+            contentID: id, 
+            createdBy: userID, 
+            updatedBy: userID, 
+            isPublished: false, 
+            env: "default"
+          },
         ],
         skipDuplicates: true,
       }),
@@ -99,7 +87,8 @@ export const newContent = async (userID:string, parentID:string, title:string, i
           isDefault: true,
           id: defaultInstanceID,
           language: "en-us",
-          body: intent,
+          body: wrapTextForInstance(intent),
+          meta: "genesis",
           createdBy: userID,
           updatedBy: userID
         }
@@ -173,4 +162,38 @@ export const deleteContent = async (userID:string, id:string) => {
           id: id,
         },
     })
+}
+
+const wrapTextForInstance = (text:string):any => {
+  return {
+    "root": {
+      "type": "root",
+      "format": "",
+      "indent": 0,
+      "version": 1,
+      "children": [
+        {
+          "type": "paragraph",
+          "format": "",
+          "indent": 0,
+          "version": 1,
+          "children": [
+            {
+              "mode": "normal",
+              "text": text,
+              "type": "text",
+              "style": "",
+              "detail": 0,
+              "format": 0,
+              "version": 1
+            }
+          ],
+          "direction": "ltr",
+          "textStyle": "",
+          "textFormat": 0
+        }
+      ],
+      "direction": "ltr"
+    }
+  }
 }

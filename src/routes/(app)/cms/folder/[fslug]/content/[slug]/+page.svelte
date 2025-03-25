@@ -1,14 +1,12 @@
 <script lang="ts">
-    import { page } from "$app/state";
 	import { CSSection, SectionSubHeading } from "$lib/components";
-	import { superForm } from "sveltekit-superforms";
-    import { debounce } from '$lib/forms/helpers';
 	import { Accordion, AccordionItem, Badge, Button, ButtonGroup, Datepicker, Input, Label, P, Toggle } from "flowbite-svelte";
-	import { PlusOutline , FolderOutline} from "flowbite-svelte-icons";
+	import { CloseCircleSolid, PlusOutline } from "flowbite-svelte-icons";
 	import { invalidateAll } from "$app/navigation";
-	import { contentNameAvailable } from "$lib/services/cms/content";
-	import { RichTextComposer } from "svelte-lexical";
+	import InstanceModal from "../../../../components/InstanceModal.svelte";
+	import { Composer, RichTextComposer } from "svelte-lexical";
 	import { theme } from "svelte-lexical/dist/themes/default";
+	import LexicalDisplay from "../../../../components/LexicalDisplay.svelte";
 
     interface Props {
         data: any,
@@ -18,27 +16,7 @@
     let activeOn = $state(data.content.activeOn) as Date|null
     let expiresOn = $state(data.content.expiresOn) as Date|null
     let isActive = $state(data.content.isActive)
-
-    const { form, errors, message, enhance } = superForm(data.form, { dataType: 'form' });
-    const {
-		delayed,
-		submit: submitCheckContentTitle,
-		enhance: submitEnhance
-	} = superForm(
-		{ title: '' },
-		{
-			invalidateAll: false,
-			applyAction: false,
-			multipleSubmits: 'abort',
-			onSubmit({ cancel }) {
-				if (!$form.title) cancel();
-			},
-			onUpdated({ form }) {
-				// Update the other form to show the error message
-				$errors.title = form.errors.title;
-			}
-		}
-	);
+    let selectedVersion = $state(data.versions[0].id)
 
     const updateCont = async () => {
         const ct = {
@@ -66,7 +44,7 @@
     const newVer = async () => {
         const response = await fetch('/cms/actions/version', {
             method: 'POST',
-            body: JSON.stringify({ contentID: data.content.id }),
+            body: JSON.stringify({ contentID: data.content.id, env: "default" }),
             headers: {
                 'Content-Type': 'application/json'
             }
@@ -81,6 +59,21 @@
         const response = await fetch('/cms/actions/tag', {
             method: 'POST',
             body: JSON.stringify({ contentID: data.content.id, tag: newTagName }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        let resp = await response.json()
+        invalidateAll();
+        newTagName = ""
+        console.log(resp)
+    } 
+
+    const delTag = async (tid:string) => {
+        const response = await fetch('/cms/actions/tag', {
+            method: 'DELETE',
+            body: JSON.stringify({ contentID: data.content.id, tag: tid }),
             headers: {
                 'Content-Type': 'application/json'
             }
@@ -105,9 +98,10 @@
             invalidateAll();
             console.log(resp)
         }
-    } 
+    }
 
-    const checkContent = debounce(submitCheckContentTitle, 200);
+
+
     let newTagName = $state("")
 </script>
 
@@ -115,7 +109,7 @@
 <div class="grid grid-cols-3 gap-4 p-4">
     <div class="col-span-1">
         <CSSection>
-            <SectionSubHeading cssClass="mt-6">Content Meta Information</SectionSubHeading>
+            <SectionSubHeading>Content Meta Information</SectionSubHeading>
             <div class="col-span-12 2xl:col-span-4">
                 <div class="mb-4 space-y-4 rounded-lg bg-white p-4 shadow-sm dark:bg-gray-800 sm:space-y-6 md:p-6">
                   <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{data.content.title}</h2>
@@ -171,22 +165,25 @@
 
             <div class="p-2 mb-3">
                 {#each data.tags as tag} 
-                    <Badge class="mr-2">{tag.tagID}</Badge>
+                    <Badge class="mr-2" dismissable>
+                        {tag.tagID}
+                    <button slot="close-button" onclick={() => delTag(tag.tagID)} type="button" class="inline-flex items-center rounded-full p-0.5 my-0.5 ms-1.5 -me-1.5 text-sm text-white dark:text-primary-80 hover:text-whit dark:hover:text-white" aria-label="Remove">
+                        <CloseCircleSolid class="h-4 w-4" />
+                        <span class="sr-only">Delete tag</span>
+                    </button>
+                    </Badge>
                 {/each}
             </div>
 
             <div>
                 <Label class="mb-2" for="input-addon-sm">Add a tag</Label>
                 <ButtonGroup class="w-full" size="sm">
-                  <Input name="tag" type="text" placeholder="Tag" aria-invalid={$errors.name ? 'true' : undefined} bind:value={newTagName} />
+                  <Input name="tag" type="text" placeholder="Tag" bind:value={newTagName} />
                   <Button color="blue"
                     onclick={newTag}
                   >Add</Button>
                 </ButtonGroup>
-                <input type="hidden" name="name" value={$form.name} />
               </div>
-              <!-- {#if $errors.name}<p class="mt-2 text-sm text-red-600 dark:text-red-500">{$errors.name}</p>{/if} -->
-
         </CSSection>
     </div>
 
@@ -196,10 +193,10 @@
                 <span class="font-semibold text-gray-900 dark:text-white">Versions:</span> 
                 {#each data.versions as v}
                     {#if v.isPublished}
-                    <Badge class="mr-2" color="green">v{v.number} (published)</Badge>
+                    <Badge class="mr-2" color="green">v{v.number}-{v.env} (published)</Badge>
                     {:else}
                     <button onclick={() => setPub(v.id)}>
-                        <Badge class="mr-2" color="yellow">v{v.number}</Badge>
+                        <Badge class="mr-2" color="yellow">v{v.number}-{v.env}</Badge>
                     </button>
                     {/if}
                 {/each}
@@ -213,7 +210,9 @@
             </div>
         </CSSection>
         <CSSection cssClass="mt-4">
-            <SectionSubHeading>Content instances</SectionSubHeading>
+            <SectionSubHeading>
+                Content instances
+            </SectionSubHeading>
         
             {#if data.instances.length > 0}
             <Accordion flush>
@@ -221,8 +220,9 @@
                 <AccordionItem>
                   <span slot="header">
                     Language: <Badge color="blue">{inst.language}</Badge>   
-                    <span>Version: <Badge class="mr-2">v{inst.version.number}</Badge></span>
-                  <p class="mt-2 text-sm font-light text-gray-500 dark:text-gray-400">{inst.body}</p>
+                    Version: <Badge class="mr-2">v{inst.version.number}</Badge>
+                  </span>
+                  <LexicalDisplay content={inst.body} />
                 </AccordionItem>
                 {/each}
               </Accordion>
@@ -231,44 +231,7 @@
             {/if}
         </CSSection>
 
-        <CSSection cssClass="mt-4">
-            <RichTextComposer {theme} />
-        </CSSection>
+        <InstanceModal contentID={data.content.id} versionID={selectedVersion} />
     </div>
 </div>
 
-
-<!--
-<CSSection cssClass="mt-2 mb-4">
-{#if $message}
-    <!-- eslint-disable-next-line svelte/valid-compile --
-    <div class="status" class:error={page.status >= 400} class:success={page.status == 200}>
-        {$message}
-    </div>
-{/if}
-<form method="POST" class="mx-auto" action="/cms/folder/{data.folder.slug}/content/?/updateCont" use:enhance>
-    <input type="hidden" name="id" value={data.content.id} />
-    <input type="hidden" name="versionID" value={data.content.versionID} />
-    <input type="hidden" name="parentID" value={data.folder.id} />
-    <div class="mb-5">
-        <label for="title" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Content title </label>
-        <input form="check" name="title" aria-invalid={$errors.title ? 'true' : undefined} bind:value={$form.title} oninput={checkContent} class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Content title" />
-        {#if $errors.title}<p class="mt-2 text-sm text-red-600 dark:text-red-500">{$errors.title}</p>{/if}
-
-        <input type="hidden" name="title" value={$form.title} />
-    </div>
-
-    <div class="mb-5">
-        <label for="intent" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Content intent</label>
-        <textarea name="intent" aria-invalid={$errors.intent ? 'true' : undefined} bind:value={$form.intent}  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Intent"></textarea>
-        {#if $errors.intent}<p class="mt-2 text-sm text-red-600 dark:text-red-500">{$errors.intent}</p>{/if}
-    </div>
-
-    <div>
-        <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Update</button>
-    </div>
-</form>
-
-<form id="check" method="POST" action="/cms/folder/{data.folder.slug}/content/?/check" use:submitEnhance></form>
-</CSSection>
--->

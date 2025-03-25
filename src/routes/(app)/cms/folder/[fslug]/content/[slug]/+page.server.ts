@@ -1,6 +1,7 @@
 import { contentSchema } from '$lib/forms/content.validation';
 import { idSchema } from '$lib/forms/id.validation.js';
-import { contentNameAvailable, deleteContent, findContentInstances, getContent, newContent, updateContent } from '$lib/services/cms/content';
+import { contentNameAvailable, deleteContent, getContent, updateContent } from '$lib/services/cms/content';
+import { findContentInstances } from '$lib/services/cms/instances';
 import { findContentVersions } from '$lib/services/cms/versions'
 import { getUserEmail } from '$lib/services/cms/helpers.js';
 import { fail, setError, superValidate, type Infer, type SuperValidated } from 'sveltekit-superforms';
