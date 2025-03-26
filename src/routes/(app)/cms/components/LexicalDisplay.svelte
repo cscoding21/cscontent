@@ -1,13 +1,14 @@
 <script lang="ts">
+    import { createEditor } from "lexical";
 	import { onMount } from "svelte";
-	import { Composer, RichTextPlugin } from "svelte-lexical";
 	import { theme } from "svelte-lexical/dist/themes/default";
 
 
     interface Props {
         content:any
+        id: string
     }
-    let { content }:Props = $props() 
+    let { content, id }:Props = $props() 
 
     let initialConfig = {
         theme: theme,
@@ -18,22 +19,19 @@
         }
     }
 
-    let composer:RichTextComposer = {}
+    let editor:any
 
     onMount(() => {
-        const initialConfig = {
-            editorState: content
-        }
+        editor = createEditor(initialConfig)
+        
+        const editorRef = document.getElementById(id);
+        editor.setRootElement(editorRef);
 
-        composer.getEditor().setEditorState(initialConfig)
+        editor.setEditorState(editor.parseEditorState(content))
+        editor.setEditable(false)
     })
 </script>
 
 <div class="editor-container">
-    <Composer {initialConfig} bind:this={composer}>
-      <RichTextPlugin
-        placeholder={null}
-        contentEditableClassName="content-editable"
-      />
-    </Composer>
-  </div>
+    <div id={id}></div>
+</div>

@@ -93,6 +93,9 @@ importers:
       globals:
         specifier: ^16.0.0
         version: 16.0.0
+      lexical:
+        specifier: ^0.29.0
+        version: 0.29.0
       postcss:
         specifier: ^8.5.3
         version: 8.5.3
@@ -2064,6 +2067,9 @@ packages:
 
   lexical@0.27.1:
     resolution: {integrity: sha512-EXlRE/NQO9quKFuz4Z2pu5f48oF8LZOAw0YpN0RmGQx2CbqmEi7SIgO+d+NUKVx9Qs1vX0DL5S7GJpvpZBOE3w==}
+
+  lexical@0.29.0:
+    resolution: {integrity: sha512-eoBHUEn0LmExKeK6x2cFKU0FPaMk2Bc5HgiCzTiv5ymKtwWw7LeKcxaNPmLxRRdQpcWV1IMKjayAbw7Lt/Gu7w==}
 
   lib0@0.2.100:
     resolution: {integrity: sha512-ACQmtZ8cRD7/SpBEzBP88KrgrjOnhfcOANhhk8ASv+HFEvBSHOprxur3vuhmNw4YLq29y4Yen4jU0jHpIqVYWw==}
@@ -4882,6 +4888,8 @@ snapshots:
       type-check: 0.4.0
 
   lexical@0.27.1: {}
+
+  lexical@0.29.0: {}
 
   lib0@0.2.100:
     dependencies:

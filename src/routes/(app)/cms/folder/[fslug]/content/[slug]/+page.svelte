@@ -222,7 +222,7 @@
                     Language: <Badge color="blue">{inst.language}</Badge>   
                     Version: <Badge class="mr-2">v{inst.version.number}</Badge>
                   </span>
-                  <LexicalDisplay content={inst.body} />
+                  <LexicalDisplay content={inst.body} id={inst.id} />
                 </AccordionItem>
                 {/each}
               </Accordion>
