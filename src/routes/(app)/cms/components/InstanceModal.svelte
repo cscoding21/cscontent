@@ -1,21 +1,23 @@
 <script lang="ts">
 	import { theme } from 'svelte-lexical/dist/themes/default';
     import { Button, Label, Modal, Select, type SelectOptionType } from 'flowbite-svelte';
-	import { Composer, RichTextComposer } from 'svelte-lexical';
+	import { RichTextComposer } from 'svelte-lexical';
+	import { onMount, type Snippet } from 'svelte';
 
     interface Props {
         contentID: string
         instanceID?: string
-        versionID: string
+        versionID?: string
+        contents?: any
+        children: Snippet
     }
-    let { contentID, instanceID, versionID }:Props = $props()
+    let { contentID, instanceID, versionID, children, contents }:Props = $props()
 
     let modalOpen = $state(false)
     let question = $state("")
     let lang = $state("en-us")
 
-    // @ts-expect-error
-    let composer:RichTextComposer = {}
+    let composer:any
 
     let langOpts :SelectOptionType<string>[] = [
         { value: "en-us", name: "English" }
@@ -57,13 +59,24 @@
 
             let resp = await response.json()
             console.log(resp)
-
         }
     }
+
+    onMount(() => {
+        console.log("contents", contents)
+        console.log("composer", composer)
+        if(composer && composer.getEditor) {
+            const editor = composer.getEditor()
+
+            if(contents) {
+                editor.setEditorState(editor.parseEditorState(contents))
+            }
+        }
+    })
 </script>
 
 
-<Button on:click={() => (modalOpen = true)}>Create instance</Button>
+<button onclick={() => (modalOpen = true)}>{@render children()}</button>
 <Modal size="xl" title="Create New Instance" bind:open={modalOpen}>
     <div class="flex">
         <div>

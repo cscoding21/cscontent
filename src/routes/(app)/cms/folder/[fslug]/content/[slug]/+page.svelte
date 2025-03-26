@@ -1,11 +1,9 @@
 <script lang="ts">
 	import { CSSection, SectionSubHeading } from "$lib/components";
 	import { Accordion, AccordionItem, Badge, Button, ButtonGroup, Datepicker, Input, Label, P, Toggle } from "flowbite-svelte";
-	import { CloseCircleSolid, PlusOutline } from "flowbite-svelte-icons";
+	import { CloseCircleSolid, EditOutline, PlusOutline, TrashBinOutline } from "flowbite-svelte-icons";
 	import { invalidateAll } from "$app/navigation";
 	import InstanceModal from "../../../../components/InstanceModal.svelte";
-	import { Composer, RichTextComposer } from "svelte-lexical";
-	import { theme } from "svelte-lexical/dist/themes/default";
 	import LexicalDisplay from "../../../../components/LexicalDisplay.svelte";
 
     interface Props {
@@ -74,6 +72,20 @@
         const response = await fetch('/cms/actions/tag', {
             method: 'DELETE',
             body: JSON.stringify({ contentID: data.content.id, tag: tid }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        let resp = await response.json()
+        invalidateAll();
+        console.log(resp)
+    } 
+
+    const delInst = async (id:string) => {
+        const response = await fetch('/cms/actions/instance', {
+            method: 'DELETE',
+            body: JSON.stringify({ instanceID: id }),
             headers: {
                 'Content-Type': 'application/json'
             }
@@ -212,6 +224,9 @@
         <CSSection cssClass="mt-4">
             <SectionSubHeading>
                 Content instances
+                <span class="float-right">
+                    <InstanceModal contentID={data.content.id} versionID={selectedVersion}><PlusOutline /></InstanceModal>
+                </span>
             </SectionSubHeading>
         
             {#if data.instances.length > 0}
@@ -222,7 +237,14 @@
                     Language: <Badge color="blue">{inst.language}</Badge>   
                     Version: <Badge class="mr-2">v{inst.version.number}</Badge>
                   </span>
-                  <LexicalDisplay content={inst.body} id={inst.id} />
+                  <div class="text-sm">
+                    <LexicalDisplay content={inst.body} id={inst.id} />
+                    <div class="mt-2">
+                        <button onclick={() => delInst(inst.id)}><TrashBinOutline /></button>
+
+                        <InstanceModal contentID={data.content.id} instanceID={inst.id} contents={inst.body}><EditOutline /></InstanceModal>
+                    </div>
+                  </div>
                 </AccordionItem>
                 {/each}
               </Accordion>
@@ -230,8 +252,6 @@
             No instances yet
             {/if}
         </CSSection>
-
-        <InstanceModal contentID={data.content.id} versionID={selectedVersion} />
     </div>
 </div>
 

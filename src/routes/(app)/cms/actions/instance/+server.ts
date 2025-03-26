@@ -20,8 +20,8 @@ export async function PUT({ request, locals }) {
 
 export async function DELETE({ request, locals }) {
     const userID = await getUserEmail(locals)
-    const { contentID, versionID } = await request.json();
-    const resp = await deleteInstance   (contentID, versionID)
+    const { instanceID } = await request.json();
+    const resp = await deleteInstance   (userID, instanceID)
 
     return json({ resp }, { status: 201 });
 }
