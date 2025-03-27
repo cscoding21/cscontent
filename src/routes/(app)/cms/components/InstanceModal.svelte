@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { theme } from 'svelte-lexical/dist/themes/default';
     import { Button, Label, Modal, Select, type SelectOptionType } from 'flowbite-svelte';
-	import { RichTextComposer } from 'svelte-lexical';
-	import { onMount, type Snippet } from 'svelte';
+	import { type Snippet } from 'svelte';
+	import { invalidateAll } from '$app/navigation';
+	import LexicalEditor from './LexicalEditor.svelte';
 
     interface Props {
         contentID: string
@@ -10,31 +10,40 @@
         versionID?: string
         contents?: any
         children: Snippet
+        update?: Function
     }
-    let { contentID, instanceID, versionID, children, contents }:Props = $props()
+    let { contentID, instanceID, versionID, children, contents, update }:Props = $props()
 
     let modalOpen = $state(false)
     let question = $state("")
     let lang = $state("en-us")
-
-    let composer:any
+    let editorContents = $state(contents)
 
     let langOpts :SelectOptionType<string>[] = [
         { value: "en-us", name: "English" }
     ]
 
-    const updateInt = async () => {
-        const json = composer.getEditor().getEditorState().toJSON()
+    let title = $derived(instanceID ? `Update instance ${instanceID}` : "Create new instance")
 
+    const closeModal = () => {
+        modalOpen = false; 
+        
+        if (update) { 
+            update()
+        }; 
+        
+        invalidateAll()
+    }
+
+    const updateInt = async () => {
         let data = {
+            meta: "",
             contentID: contentID,
             instanceID: instanceID,
             versionID: versionID,
             lang: lang,
-            body: json
+            body: editorContents
         }
-
-        console.log(data)
 
         if (instanceID) {
             //---edit an existing instance
@@ -47,6 +56,10 @@
                     'Content-Type': 'application/json'
                 }
             });
+
+            let resp = await response.json()
+            console.log("update resp", resp)
+            invalidateAll()
         } else {
             //---create a new instance
             const response = await fetch('/cms/actions/instance', {
@@ -58,26 +71,15 @@
             });
 
             let resp = await response.json()
-            console.log(resp)
+            instanceID = resp.resp.id
+            invalidateAll()
         }
     }
-
-    onMount(() => {
-        console.log("contents", contents)
-        console.log("composer", composer)
-        if(composer && composer.getEditor) {
-            const editor = composer.getEditor()
-
-            if(contents) {
-                editor.setEditorState(editor.parseEditorState(contents))
-            }
-        }
-    })
 </script>
 
 
 <button onclick={() => (modalOpen = true)}>{@render children()}</button>
-<Modal size="xl" title="Create New Instance" bind:open={modalOpen}>
+<Modal size="xl" title={title} bind:open={modalOpen} onclose={closeModal}>
     <div class="flex">
         <div>
             <Select id="select-sm" size="sm" items={langOpts} bind:value={lang} class="mb-6" />
@@ -85,7 +87,7 @@
     </div>
     <div class="flex">
         <div>
-            <RichTextComposer bind:this={composer} theme={theme} />
+            <LexicalEditor id={instanceID || crypto.randomUUID()} bind:contents={editorContents} />
         </div>
         <div class="ml-4 w-full">
             <Label>AI Collaboration</Label>
@@ -94,6 +96,6 @@
     </div>
   <svelte:fragment slot="footer">
     <Button onclick={updateInt}>Update</Button>
-    <Button color="alternative">Close</Button>
+    <Button color="alternative" onclick={closeModal}>Close</Button>
   </svelte:fragment>
 </Modal>

@@ -49,8 +49,17 @@ export const newInstance = async (userID: string, contentID:string, lang: string
  * @param instanceID 
  * @param body 
  */
-export const updateInstance = async (userID: string, instanceID: string, body: string) => {
+export const updateInstance = async (userID: string, instanceID: string, body: string, meta: string) => {
+  const content = await prisma.instance.update({
+    data: {
+      meta: meta,
+      body: body,
+      updatedBy: userID,
+    },
+    where: { id: instanceID }
+  })
 
+return content
 }
 
 

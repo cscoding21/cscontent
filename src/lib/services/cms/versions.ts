@@ -46,9 +46,9 @@ export const newVersion = async (userID:string, contentID:string, env:string) =>
  * @param contentID the content for which to udpate the version
  * @param versionID the version to set as published
  */
-export const setPublishedVersion = async (contentID:string, versionID:string) => {
+export const setPublishedVersion = async (userID: string, contentID:string, versionID:string) => {
     console.log(contentID, versionID)
-    const [ content, versions ] = await prisma.$transaction([
+    const [ content ] = await prisma.$transaction([
         prisma.version.updateMany({
             where: {
               contentID: {
@@ -57,6 +57,8 @@ export const setPublishedVersion = async (contentID:string, versionID:string) =>
             },
             data: {
               isPublished: false,
+              updatedBy: userID,
+              updatedAt: new Date()
             },
         }),
         prisma.version.update({
@@ -65,6 +67,8 @@ export const setPublishedVersion = async (contentID:string, versionID:string) =>
             },
             data: {
                 isPublished: true,
+                updatedBy: userID,
+                updatedAt: new Date()
             },
         })
     ])

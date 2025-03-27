@@ -12,8 +12,8 @@ export async function POST({ request, locals }) {
 
 export async function PUT({ request, locals }) {
     const userID = await getUserEmail(locals)
-    const { versionID } = await request.json();
-    const resp = await setPublishedVersion(userID, versionID)
+    const { versionID, contentID } = await request.json();
+    const resp = await setPublishedVersion(userID, contentID, versionID)
 
     return json({ resp }, { status: 201 });
 }

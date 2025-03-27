@@ -18,7 +18,7 @@ export const translateMessage = async (ask:string):Promise<string> => {
     return await chain.invoke({ language: "french", text: ask });
 }
 
-export const generateFromIntent = async (ask:string):Promise<string> => {
+export const generateFromIntent = async (context:string, ask:string):Promise<string> => {
     const model = new Ollama({ model: "mistral" });
     const systemTemplate = "Translate the following into {language}:";
     const parser = new StringOutputParser();
