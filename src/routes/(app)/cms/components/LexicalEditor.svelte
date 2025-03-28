@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { RichTextComposer } from "svelte-lexical";
-	import { theme } from "svelte-lexical/dist/themes/default";
+	import { theme } from "$lib/components/forms/lexical-theme/theme";
 
 
     interface Props {

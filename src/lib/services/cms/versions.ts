@@ -23,17 +23,14 @@ export const findContentVersions = async (contentID:string) => {
  * @param name the name of the folder to create
  * @param parentID the parent ID of the folder to create
  */
-export const newVersion = async (userID:string, contentID:string, env:string) => {
+export const newVersion = async (userID:string, contentID:string) => {
     const id = newID()
     const next = await getNextVersion(contentID)
-
-    console.log("environment", env)
 
     const version = await prisma.version.create({
         data: {
           contentID: contentID,
           isPublished: false,
-          env: env,
           number: next,
           createdBy: userID,
           updatedBy: userID

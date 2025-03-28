@@ -52,6 +52,9 @@ export const newContent = async (userID:string, parentID:string, title:string, i
     const id = newID()
     const lastestVersionID = newID()
     const defaultInstanceID = newID()
+    const selectors = [
+      { "lang" : "en-us" }
+    ]
 
     const [ content, versions, instance ] = await prisma.$transaction([
       prisma.content.create({
@@ -74,8 +77,7 @@ export const newContent = async (userID:string, parentID:string, title:string, i
             contentID: id, 
             createdBy: userID, 
             updatedBy: userID, 
-            isPublished: false, 
-            env: "default"
+            isPublished: false
           },
         ],
         skipDuplicates: true,
@@ -86,9 +88,9 @@ export const newContent = async (userID:string, parentID:string, title:string, i
           versionID:lastestVersionID,
           isDefault: true,
           id: defaultInstanceID,
-          language: "en-us",
+          selectors: selectors,
           body: wrapTextForInstance(intent),
-          meta: "genesis",
+          meta: "*genesis*",
           createdBy: userID,
           updatedBy: userID
         }

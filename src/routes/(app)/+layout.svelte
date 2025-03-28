@@ -94,7 +94,7 @@
 			<CSNavItem   href="/home" active={isTLPage("/home")}>Home</CSNavItem>	
 			<CSNavItem   href="/cms" active={isTLPage("/cms")}>Content</CSNavItem>	
 			<CSNavItem   href="/engagement" active={isTLPage("/engagement")}>Engagement</CSNavItem>	
-			<CSNavItem   href="/insight" active={isTLPage("/insight")}>Insights</CSNavItem>	
+			<CSNavItem   href="/insights" active={isTLPage("/insights")}>Insights</CSNavItem>	
 		</ul>
 	</div>	
 </Navbar>

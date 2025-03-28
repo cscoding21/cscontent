@@ -135,7 +135,6 @@ model Version {
   contentID   String
   content     Content @relation(fields: [contentID], references: [id])
   isPublished Boolean @default(false)
-  env         String?
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -148,16 +147,15 @@ model Version {
 }
 
 model Instance {
-  id             String  @id @default(cuid())
-  meta           String?
-  body           Json
-  additionalData Json?
-  language       String
-  isDefault      Boolean
-  contentID      String
-  content        Content @relation(fields: [contentID], references: [id])
-  versionID      String
-  version        Version @relation(fields: [versionID], references: [id])
+  id        String  @id @default(cuid())
+  meta      String?
+  body      Json
+  isDefault Boolean
+  contentID String
+  content   Content @relation(fields: [contentID], references: [id])
+  versionID String
+  version   Version @relation(fields: [versionID], references: [id])
+  selectors Json?
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt

@@ -12,8 +12,8 @@ export async function POST({ request, locals }) {
 
 export async function PUT({ request, locals }) {
     const userID = await getUserEmail(locals)
-    const { instanceID, body, meta } = await request.json();
-    const resp = await updateInstance(userID, instanceID, body, meta)
+    const { instanceID, body, meta, selectors } = await request.json();
+    const resp = await updateInstance(userID, instanceID, body, meta, selectors)
 
     return json({ resp }, { status: 201 });
 }

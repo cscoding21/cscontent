@@ -12,33 +12,40 @@ import { redirect } from '@sveltejs/kit';
 import type { Version } from '@prisma/client';
 import { findContentTags } from '$lib/services/cms/tags';
 
-export async function load({ params }) {
+export async function load({ params, url }) {
     let data = params;
 
     const slug = data.slug
     const fslug = data.fslug
     const folder = await getFolder(fslug)
+    let v = url.searchParams.get('v');
 
     let content = await getContent(slug)
     let versions = await findContentVersions(content.id)
-    let instanceVersion = getPublishedVersionID(versions)
-    let instances = await findContentInstances(content.id, instanceVersion)
+    let specifiedVersion = getPublishedVersionID(versions, v)
+    let instances = await findContentInstances(content.id, specifiedVersion.id)
     let tags = await findContentTags(content.id)
 
-
+    const pathname = url.pathname
     const form = await superValidate(content, yup(contentSchema));
 
-    return { content, instances, versions, folder, form, tags };
+    return { content, instances, versions, folder, form, tags, pathname, specifiedVersion };
 }
 
-const getPublishedVersionID = (versions:Version[]):string => {
+const getPublishedVersionID = (versions:Version[], specifiedVersion:string|null):Version => {
+    if(specifiedVersion) {
+        let sv = versions.filter(v => v.id === specifiedVersion)
+
+        return sv[0]
+    }
+
     let ver = versions.filter(v => v.isPublished)
 
     if(ver.length > 0) {
-        return ver[0].id
+        return ver[0]
     }
 
-    return versions[0].id
+    return versions[0]
 }
 
 

@@ -26,14 +26,14 @@ export const findContentInstances = async (contentID:string, versionID:string) =
  * @param versionID 
  * @param body 
  */
-export const newInstance = async (userID: string, contentID:string, lang: string, versionID: string, body: string) => {
+export const newInstance = async (userID: string, contentID:string, selectors:any[], versionID: string, body: string) => {
     const id = newID()
   
     return await prisma.instance.create({
         data: {
           id: id,
           contentID: contentID,
-          language: lang,
+          selectors: selectors,
           isDefault: false,
           versionID: versionID,
           body: body,
@@ -49,10 +49,11 @@ export const newInstance = async (userID: string, contentID:string, lang: string
  * @param instanceID 
  * @param body 
  */
-export const updateInstance = async (userID: string, instanceID: string, body: string, meta: string) => {
+export const updateInstance = async (userID: string, instanceID: string, body: string, meta: string, selectors:any[]) => {
   const content = await prisma.instance.update({
     data: {
       meta: meta,
+      selectors: selectors,
       body: body,
       updatedBy: userID,
     },

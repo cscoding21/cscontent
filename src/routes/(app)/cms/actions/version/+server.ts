@@ -4,8 +4,8 @@ import { json } from '@sveltejs/kit';
 
 export async function POST({ request, locals }) {
     const userID = await getUserEmail(locals)
-    const { contentID, env } = await request.json();
-    const resp = await newVersion(userID, contentID, env)
+    const { contentID } = await request.json();
+    const resp = await newVersion(userID, contentID)
 
     return json({ resp }, { status: 201 });
 }

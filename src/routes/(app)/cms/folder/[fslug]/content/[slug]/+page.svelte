@@ -14,7 +14,7 @@
     let activeOn = $state(data.content.activeOn) as Date|null
     let expiresOn = $state(data.content.expiresOn) as Date|null
     let isActive = $state(data.content.isActive)
-    let selectedVersion = $state(data.versions[0].id)
+    let selectedVersion = $state(data.selectedVersion)
 
     let editTitle = $state(false)
     let editIntent = $state(false)
@@ -257,21 +257,21 @@
             <div class="mb-5">
                 <div class="font-semibold text-gray-900 dark:text-white">Versions:</div> 
                 {#each data.versions as v}
-                <button onclick={() => selectedVersion = v.id}>
+                <a href="{data.pathname}?v={v.id}">
                     {#if v.isPublished}
-                        <Badge class="mr-2" color="green">v{v.number}-{v.env} (published)</Badge>
+                        <Badge class="mr-2" color="green">v{v.number} (published)</Badge>
                     {:else}
-                        <Badge class="mr-2" color="yellow">v{v.number}-{v.env}</Badge>
+                        <Badge class="mr-2" color="yellow">v{v.number}</Badge>
                     {/if}
-                </button>
+                </a>
                 {/each}
             </div>
         </CSSection>
         <CSSection cssClass="mt-4">
             <SectionSubHeading>
-                Content instances (version {selectedVersion})
+                Content instances <Badge class="ml-4">v{data.specifiedVersion.number}</Badge>
                 <span class="float-right">
-                    <InstanceModal contentID={data.content.id} versionID={selectedVersion} update={updateView}><PlusOutline /></InstanceModal>
+                    <InstanceModal contentID={data.content.id} versionID={data.specifiedVersion.id} update={updateView}><PlusOutline /></InstanceModal>
                 </span>
             </SectionSubHeading>
         
@@ -286,8 +286,19 @@
                     {#if inst.meta}
                     <div class="mr-4">Label: {inst.meta}</div>
                     {/if}
-                    <div class="mr-4">Language: <Badge color="blue">{inst.language}</Badge></div>
-                    <div class="mr-4">Version: <Badge class="mr-2">v{inst.version.number}</Badge></div>
+                    {#if inst.selectors}
+                    <div class="mr-4">
+                        Selectors: 
+                        {#each inst.selectors as selector, index}
+                            {#if index !== 0}
+                                ,
+                            {/if}
+                            {#each Object.keys(selector) as k}
+                                {k} : {selector[k]}
+                            {/each}
+                        {/each}
+                    </div>  
+                    {/if}
                     
                   </div>
                   <div class="text-sm">
@@ -295,10 +306,10 @@
                     <div class="mt-2">
                         <button onclick={() => delInst(inst.id)} class="p-2"><TrashBinOutline /></button>
                         <button onclick={() => alert("translate")} class="p-2"><LanguageOutline /></button>
-                        <button onclick={() => alert("copy")} class="p-2"><FileCopyOutline /></button>
+                        <InstanceModal contentID={data.content.id} contents={inst.body} update={updateView} meta={"copy of " + inst.meta} selectors={inst.selectors}><FileCopyOutline /></InstanceModal>
 
                         <span class="p-2">
-                        <InstanceModal contentID={data.content.id} instanceID={inst.id} contents={inst.body} update={updateView}><EditOutline /></InstanceModal>
+                        <InstanceModal contentID={data.content.id} instanceID={inst.id} contents={inst.body} update={updateView} meta={inst.meta} selectors={inst.selectors}><EditOutline /></InstanceModal>
                     </span>
                     </div>
                   </div>

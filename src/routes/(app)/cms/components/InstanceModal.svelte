@@ -1,8 +1,9 @@
 <script lang="ts">
-    import { Button, Label, Modal, Select, type SelectOptionType } from 'flowbite-svelte';
+    import { Badge, Button, Input, Label, Modal, Select, type SelectOptionType } from 'flowbite-svelte';
 	import { type Snippet } from 'svelte';
 	import { invalidateAll } from '$app/navigation';
 	import LexicalEditor from './LexicalEditor.svelte';
+	import { CloseCircleSolid } from 'flowbite-svelte-icons';
 
     interface Props {
         contentID: string
@@ -11,19 +12,43 @@
         contents?: any
         children: Snippet
         update?: Function
+        meta?: string
+        selectors?: any[]
     }
-    let { contentID, instanceID, versionID, children, contents, update }:Props = $props()
+    let { contentID, instanceID, versionID, children, contents, update, meta, selectors }:Props = $props()
 
     let modalOpen = $state(false)
     let question = $state("")
     let lang = $state("en-us")
+    let editorMeta = $state(meta)
     let editorContents = $state(contents)
+    let editorSelectors = $state(selectors)
+
+    let newSelectorKey:string = $state("")
+    let newSelectorValue:string = $state("")
 
     let langOpts :SelectOptionType<string>[] = [
         { value: "en-us", name: "English" }
     ]
 
     let title = $derived(instanceID ? `Update instance ${instanceID}` : "Create new instance")
+
+    const addSelector = () => {
+        let s:any = {}
+        s[newSelectorKey] = newSelectorValue
+
+        editorSelectors = [...editorSelectors as any[], s]
+
+        newSelectorKey = ""
+        newSelectorValue = ""
+    }
+
+    const removeSelector = (index:number) => {
+        if(!editorSelectors)
+            return;
+
+        delete editorSelectors[index]
+    }
 
     const closeModal = () => {
         modalOpen = false; 
@@ -37,12 +62,12 @@
 
     const updateInt = async () => {
         let data = {
-            meta: "",
+            meta: editorMeta,
             contentID: contentID,
             instanceID: instanceID,
             versionID: versionID,
-            lang: lang,
-            body: editorContents
+            body: editorContents,
+            selectors: editorSelectors
         }
 
         if (instanceID) {
@@ -81,9 +106,37 @@
 <button onclick={() => (modalOpen = true)}>{@render children()}</button>
 <Modal size="xl" title={title} bind:open={modalOpen} onclose={closeModal}>
     <div class="flex">
+        <!-- <div class="mr-2">
+            <Select id="select-sm" size="sm" items={langOpts} bind:value={lang} class="text-xs" />
+        </div> -->
         <div>
-            <Select id="select-sm" size="sm" items={langOpts} bind:value={lang} class="mb-6" />
+            <Input id="label-sm" size="sm" bind:value={editorMeta} placeholder="Add a meta label" class="text-xs" />
         </div>
+        <div class="mr-4 ml-12">
+            <Input id="selectorKey" size="sm" bind:value={newSelectorKey} placeholder="Key" />
+        </div>  
+        <div>
+            <Input id="selectorKey" size="sm" bind:value={newSelectorValue} placeholder="Value" />
+        </div>
+        <div class="ml-4">
+            <Button pill color="blue" size="sm" onclick={addSelector}>Add</Button>
+        </div>
+        {#if editorSelectors}
+        <div class="ml-4">
+            Selectors: 
+            {#each editorSelectors as selector, index}
+                {#each Object.keys(selector) as k}
+                    <Badge class="mx-2" dismissable>
+                        {k} : {selector[k]} 
+                        <button slot="close-button" onclick={() => removeSelector(index)} type="button" class="inline-flex items-center rounded-full p-0.5 my-0.5 ms-1.5 -me-1.5 text-sm text-white dark:text-primary-80 hover:text-whit dark:hover:text-white" aria-label="Remove">
+                            <CloseCircleSolid class="h-4 w-4" />
+                            <span class="sr-only">Delete instance selector '{k}'</span>
+                        </button>
+                    </Badge>
+                {/each}
+            {/each}
+        </div>  
+        {/if}
     </div>
     <div class="flex">
         <div>

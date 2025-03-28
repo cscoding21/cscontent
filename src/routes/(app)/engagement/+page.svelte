@@ -9,6 +9,8 @@
     let question = $state()
     let answer = $state()
 
+    let resources = $state([])
+
     const getResponse = async () => {
         console.log(JSON.stringify(question))
         const response = await fetch('/engagement', {
@@ -25,7 +27,8 @@
 
 </script>
 
-<div class="p-4">
+<div class="grid grid-cols-3 gap-4 p-4">
+    <div class="col-span-2">
     <CSSection>     
         <div class="mb-5">
             <label for="intent" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Question</label>
@@ -42,5 +45,17 @@
         <div>{answer}</div>
     </CSSection>
     {/if}
-
+    </div>
+    <div class="col-span-1">
+        <CSSection>
+        <h3 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">AI Tools</h3>
+        {#if data.tools}
+        <ul>
+            {#each data.tools as tool}
+            <li>{tool}</li>
+            {/each}
+        </ul>
+        {/if}
+        </CSSection>
+    </div>
 </div>
