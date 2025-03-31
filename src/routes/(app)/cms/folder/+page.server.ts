@@ -1,7 +1,7 @@
 import { setError, superValidate, type Infer, type SuperValidated } from 'sveltekit-superforms';
 import { folderSchema } from '$lib/forms/folder.validation';
 import {folderNameAvailable, deleteFolder, newFolder}  from '$lib/services/cms/folders'
-import { yup } from 'sveltekit-superforms/adapters';
+import { zod } from 'sveltekit-superforms/adapters';
 import type { Actions } from './$types';
 import { fail } from '@sveltejs/kit';
 import { idSchema } from '$lib/forms/id.validation';
@@ -22,7 +22,7 @@ const evaluateName = async (form: SuperValidated<Infer<typeof folderSchema>>) =>
 
 export const actions = {
     addFold: async ({ request, locals }) => {
-        const form = await superValidate(request, yup(folderSchema));
+        const form = await superValidate(request, zod(folderSchema));
 
         const ok = await evaluateName(form)
         if (!form.valid || !ok) {
@@ -34,13 +34,13 @@ export const actions = {
         return { form };
     },
     delFold: async ({ request, locals }) => {
-        const form = await superValidate(request, yup(idSchema));
+        const form = await superValidate(request, zod(idSchema));
 
         await deleteFolder(await getUserEmail(locals), form.data.id)
         return { form };
     },
     check: async ({ request }) => {
-		const form = await superValidate(request, yup(folderSchema));
+		const form = await superValidate(request, zod(folderSchema));
 
 		if (await evaluateName(form)) {
             return fail(400, { form });

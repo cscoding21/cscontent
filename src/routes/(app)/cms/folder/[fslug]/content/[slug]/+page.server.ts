@@ -5,7 +5,7 @@ import { findContentInstances } from '$lib/services/cms/instances';
 import { findContentVersions } from '$lib/services/cms/versions'
 import { getUserEmail } from '$lib/services/cms/helpers.js';
 import { fail, setError, superValidate, type Infer, type SuperValidated } from 'sveltekit-superforms';
-import { yup } from 'sveltekit-superforms/adapters';
+import { zod } from 'sveltekit-superforms/adapters';
 import type { Actions } from './$types';
 import { getFolder } from '$lib/services/cms/folders';
 import { redirect } from '@sveltejs/kit';
@@ -27,7 +27,7 @@ export async function load({ params, url }) {
     let tags = await findContentTags(content.id)
 
     const pathname = url.pathname
-    const form = await superValidate(content, yup(contentSchema));
+    const form = await superValidate(content, zod(contentSchema));
 
     return { content, instances, versions, folder, form, tags, pathname, specifiedVersion };
 }
@@ -62,7 +62,7 @@ const evaluateName = async (form: SuperValidated<Infer<typeof contentSchema>>) =
 
 export const actions = {
     updateCont: async ({ request, locals }) => {
-        const form = await superValidate(request, yup(contentSchema));
+        const form = await superValidate(request, zod(contentSchema));
 
         const nc = await updateContent(await getUserEmail(locals), form.data.id as string, form.data.title, form.data.intent, form.data.isActive, form.data.activeOn, form.data.expiresOn)
         const fold = await getFolder(nc.parentID)
@@ -70,13 +70,13 @@ export const actions = {
         redirect(303, '/cms/folder/' + fold.slug + "/content/" + nc.slug)
     },
     delCont: async ({ request, locals }) => {
-        const form = await superValidate(request, yup(idSchema));
+        const form = await superValidate(request, zod(idSchema));
 
         await deleteContent(await getUserEmail(locals), form.data.id)
         return { form };
     },
     check: async ({ request }) => {
-        const form = await superValidate(request, yup(contentSchema));
+        const form = await superValidate(request, zod(contentSchema));
 
         if (await evaluateName(form)) {
             return fail(400, { form });

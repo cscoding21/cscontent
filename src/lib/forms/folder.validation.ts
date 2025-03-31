@@ -1,6 +1,6 @@
-import * as yup from 'yup';
+import { z } from 'zod';
 
-export const folderSchema = yup.object().shape({
-	name: yup.string().required("Folder name is required"),
-	parentID: yup.string().nullable()
+export const folderSchema = z.object({
+	name: z.string(),
+	parentID: z.string().nullable()
 });

@@ -1,5 +1,5 @@
-import * as yup from 'yup';
+import { z } from 'zod';
 
-export const idSchema = yup.object().shape({
-    id: yup.string().required("ID is required")
+export const idSchema = z.object({
+    id: z.string()
 });

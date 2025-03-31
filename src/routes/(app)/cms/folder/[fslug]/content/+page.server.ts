@@ -4,7 +4,7 @@ import { getFolder } from "$lib/services/cms/folders";
 import { getUserEmail } from "$lib/services/cms/helpers";
 import { redirect, type Actions } from "@sveltejs/kit";
 import { fail, setError, superValidate, type Infer, type SuperValidated } from "sveltekit-superforms";
-import { yup } from "sveltekit-superforms/adapters";
+import { zod } from "sveltekit-superforms/adapters";
 
 
 export async function load({ params }) {
@@ -13,7 +13,7 @@ export async function load({ params }) {
     const fslug = data.fslug
     const folder = await getFolder(fslug)
 
-    const form = await superValidate(yup(contentSchema));
+    const form = await superValidate(zod(contentSchema));
 
     return { folder, form };
 
@@ -32,7 +32,7 @@ const evaluateName = async (form: SuperValidated<Infer<typeof contentSchema>>) =
 
 export const actions = {
     addCont: async ({ request, locals }) => {
-        const form = await superValidate(request, yup(contentSchema));
+        const form = await superValidate(request, zod(contentSchema));
 
         const ok = await evaluateName(form)
         if (!form.valid || !ok) {
@@ -45,7 +45,7 @@ export const actions = {
         redirect(303, '/cms/folder/' + fold.slug + "/content/" + nc.slug)
     },
     check: async ({ request }) => {
-        const form = await superValidate(request, yup(contentSchema));
+        const form = await superValidate(request, zod(contentSchema));
 
         if (await evaluateName(form)) {
             return fail(400, { form });

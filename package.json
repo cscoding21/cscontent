@@ -47,8 +47,7 @@
 		"tailwindcss": "^4.0.0",
 		"typescript": "^5.0.0",
 		"typescript-eslint": "^8.20.0",
-		"vite": "^6.0.0",
-		"yup": "^1.6.1"
+		"vite": "^6.0.0"
 	},
 	"pnpm": {
 		"onlyBuiltDependencies": [
@@ -63,6 +62,7 @@
 		"@langchain/ollama": "^0.2.0",
 		"@prisma/client": "^6.5.0",
 		"langchain": "^0.3.19",
-		"svelte-lexical": "^0.5.3"
+		"svelte-lexical": "^0.5.3",
+		"zod": "^3.24.2"
 	}
 }

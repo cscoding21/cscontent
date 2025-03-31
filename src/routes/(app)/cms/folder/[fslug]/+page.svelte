@@ -3,7 +3,7 @@
 	import { Alert, Table, TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell } from "flowbite-svelte";
 	import AddFolder from "../../components/AddFolder.svelte";
 	import FolderDisplay from "../../components/FolderDisplay.svelte";
-	import { CheckCircleSolid, CircleMinusSolid } from "flowbite-svelte-icons";
+	import { CheckCircleSolid, CircleMinusSolid, PlusOutline } from "flowbite-svelte-icons";
 
     interface Props {
         data: any
@@ -35,9 +35,15 @@
                 <div class="mt-4"><AddFolder {data} parentID={data.folder.id} /></div>
             </div>
             <div class="col-span-2">
-                <SectionSubHeading>Content</SectionSubHeading>
 
             <CSSection>
+                
+                <SectionSubHeading>
+                    Content
+                    <a class="button float-right" href="/cms/folder/{data.folder.slug}/content"><PlusOutline /></a>
+                </SectionSubHeading>
+
+            
                 <div class="mt-4">
                 {#if data.folder.content.length > 0}
                     <Table>
@@ -76,9 +82,7 @@
             
                 </div>
 
-            </CSSection>
-                <a class="button text-yellow-100" href="/cms/folder/{data.folder.slug}/content">Add new content</a>
-            
+            </CSSection>            
             </div>
         </div>
 
