@@ -225,10 +225,10 @@
                         <li class="flex items-center justify-between gap-8 border-b border-gray-200 py-4 dark:border-gray-700">
                             <p class="font-semibold text-gray-900 dark:text-white">
                                 {#if v.isPublished}
-                                <Badge class="mr-2" color="green">v{v.number}-{v.env} (published)</Badge>
+                                <Badge class="mr-2" color="green">v{v.number} ({v.meta}) (published)</Badge>
                                 {:else}
                                 <button onclick={() => setPub(v.id)}>
-                                    <Badge class="mr-2" color="yellow">v{v.number}-{v.env}</Badge>
+                                    <Badge class="mr-2" color="yellow">v{v.number} ({v.meta})</Badge>
                                 </button>
                                 {/if}
                             </p>
@@ -321,7 +321,7 @@
             {/if}
         </CSSection>
 
-        <button onclick={updateView}>Update View</button>
+        <!-- <button onclick={updateView}>Update View</button> -->
     </div>
 </div>
 

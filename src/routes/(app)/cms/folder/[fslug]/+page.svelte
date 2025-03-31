@@ -17,6 +17,7 @@
     <PageHeading title={"Folder: " + data.folder.name}></PageHeading>
         <div class="grid grid-cols-3 gap-4">
             <div class="">
+            <CSSection>
                 <SectionSubHeading>Child Folders</SectionSubHeading>
                 {#if data.folder.folders}
                 <ul>
@@ -31,6 +32,7 @@
                         This folder has no subfolders
                     </Alert>
                 {/if}
+            </CSSection>
 
                 <div class="mt-4"><AddFolder {data} parentID={data.folder.id} /></div>
             </div>

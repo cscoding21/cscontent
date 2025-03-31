@@ -3,8 +3,6 @@
 	import { CSSection } from "$lib/components";
 	import { debounce } from "$lib/forms/helpers";
 	import { FolderOutline } from "flowbite-svelte-icons";
-	import { RichTextComposer } from "svelte-lexical";
-    import {theme} from 'svelte-lexical/dist/themes/default';
 	import { superForm } from "sveltekit-superforms";
 
     interface Props {

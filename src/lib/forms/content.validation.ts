@@ -1,4 +1,3 @@
-import * as yup from 'yup';
 import { z } from 'zod';
 
 export const contentSchema = z.object({
