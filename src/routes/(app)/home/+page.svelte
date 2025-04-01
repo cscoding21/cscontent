@@ -1,11 +1,14 @@
 <script lang="ts">
 	import { CSSection } from "$lib/components";
+	import Breadcrumbs from "../cms/components/Breadcrumbs.svelte";
 
     interface Props {
         data: any
     }
     let { data }:Props = $props()
 </script>
+
+<Breadcrumbs />
 
 <div class="p-4">
 <CSSection>

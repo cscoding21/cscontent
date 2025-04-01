@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { SectionHeading } from "$lib/components";
 	import AddFolder from "./components/AddFolder.svelte";
+	import Breadcrumbs from "./components/Breadcrumbs.svelte";
 	import FolderDisplay from './components/FolderDisplay.svelte';
 
     interface Props {
@@ -9,8 +9,9 @@
     let { data }:Props = $props()
 </script>
 
+<Breadcrumbs topLevelLink="/cms" topLevelName="Content" />
+
 <div class="p-4">
-    <SectionHeading>Content</SectionHeading>
     <div class="grid grid-cols-3 gap-3">
         {#each data.folders as folder}
             <FolderDisplay {folder} />

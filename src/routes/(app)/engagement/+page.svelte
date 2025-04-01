@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { CSSection } from "$lib/components";
+	import Breadcrumbs from "../cms/components/Breadcrumbs.svelte";
 
     interface Props {
         data:any
@@ -26,6 +27,8 @@
     }
 
 </script>
+
+<Breadcrumbs topLevelLink="/engagement" topLevelName="Engagement" />
 
 <div class="grid grid-cols-3 gap-4 p-4">
     <div class="col-span-2">

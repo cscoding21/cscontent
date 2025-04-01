@@ -1,9 +1,11 @@
 <script lang="ts">
-	import { CSSection, PageHeading, SectionSubHeading } from "$lib/components";
-	import { Alert, Table, TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell } from "flowbite-svelte";
+	import { CSSection, SectionSubHeading } from "$lib/components";
+	import { Alert, Badge, Table, TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell } from "flowbite-svelte";
 	import AddFolder from "../../components/AddFolder.svelte";
 	import FolderDisplay from "../../components/FolderDisplay.svelte";
 	import { CheckCircleSolid, CircleMinusSolid, PlusOutline } from "flowbite-svelte-icons";
+	import { formatDate } from "$lib/utils/format";
+	import Breadcrumbs from "../../components/Breadcrumbs.svelte";
 
     interface Props {
         data: any
@@ -12,14 +14,14 @@
 
 </script>
 
+<Breadcrumbs links={data.folderTree} topLevelLink="/cms" topLevelName="Content" />
 
 <div class='p-4'>
-    <PageHeading title={"Folder: " + data.folder.name}></PageHeading>
         <div class="grid grid-cols-3 gap-4">
             <div class="">
             <CSSection>
                 <SectionSubHeading>Child Folders</SectionSubHeading>
-                {#if data.folder.folders}
+                {#if data.folder.folders && data.folder.folders.length > 0}
                 <ul>
                 {#each data.folder.folders as subFolder}
                     <li class="mb-2">
@@ -63,17 +65,21 @@
                             {#each data.folder.content as c}
                             <TableBodyRow>
                                 <TableBodyCell><a href="/cms/folder/{data.folder.slug}/content/{c.slug}">{c.title}</a></TableBodyCell>
-                                <TableBodyCell></TableBodyCell>
-                                <TableBodyCell class="content-center">
+                                <TableBodyCell>
+                                    {#each c.tags as tag}
+                                        <Badge class="mr-2">{tag.tagID}</Badge>
+                                    {/each}
+                                </TableBodyCell>
+                                <TableBodyCell>
                                     {#if c.isActive}
-                                        <CheckCircleSolid color="green" />
+                                        <CheckCircleSolid class="justify-center" color="green" />
                                     {:else}
-                                        <CircleMinusSolid color="gray" />
+                                        <CircleMinusSolid class="justify-center" color="gray" />
                                     {/if}
                                 </TableBodyCell>
-                                <TableBodyCell>{c.activeOn}</TableBodyCell>
-                                <TableBodyCell>{c.expiresOn}</TableBodyCell>
-                                <TableBodyCell></TableBodyCell>
+                                <TableBodyCell class="content-center">{formatDate(c.activeOn)}</TableBodyCell>
+                                <TableBodyCell class="content-center">{formatDate(c.expiresOn)}</TableBodyCell>
+                                <TableBodyCell class="content-center"></TableBodyCell>
                             </TableBodyRow>
                             {/each}
                         </TableBody>

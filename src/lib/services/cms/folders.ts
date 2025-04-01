@@ -1,5 +1,47 @@
 import { prisma } from '$lib/services/prisma'
+import type { Folder } from '@prisma/client';
 import { slugify, newID } from './helpers';
+import { deepCopy } from '$lib/utils/helpers';
+
+let folderMap = new Map<string, Folder>()
+
+
+const loadFolderCache = async () => {
+    const folders = await prisma.folder.findMany()
+
+    console.log("folders", folders)
+
+    for(let i = 0; i < folders.length; i++) {
+        folderMap.set(folders[i].id, folders[i])
+    }
+}
+
+
+export const findFolderLineage = async (fid:string):Promise<Folder[]> => {
+    if(!folderMap || folderMap.size === 0) {
+        await loadFolderCache()
+    }
+
+    console.log("findFolderLineage", folderMap)
+
+    let top = folderMap.get(fid)
+    if (!top) {
+        return []
+    }
+
+    let out:Folder[] = [top]
+
+    while(top?.parentID != null) {
+        const pid = top?.parentID
+        top = folderMap.get(pid)
+
+        out.push(deepCopy(top))
+    }
+
+    out.reverse()
+
+    return out
+}
 
 /**
  * return all folders in the system
@@ -41,7 +83,19 @@ export const getFolder = async (slugOrId:string) => {
                 },
                 },
                 content: {
-                  select: { id: true, title: true, slug: true },
+                  select: { 
+                    id: true, 
+                    title: true, 
+                    slug: true, 
+                    isActive: true, 
+                    activeOn: true, 
+                    expiresOn: true,
+                    tags: {
+                        select: {
+                            tagID: true
+                        }
+                    }
+                },
                 }
               },
         })

@@ -7,7 +7,7 @@ import { getUserEmail } from '$lib/services/cms/helpers.js';
 import { fail, setError, superValidate, type Infer, type SuperValidated } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import type { Actions } from './$types';
-import { getFolder } from '$lib/services/cms/folders';
+import { findFolderLineage, getFolder } from '$lib/services/cms/folders';
 import { redirect } from '@sveltejs/kit';
 import type { Version } from '@prisma/client';
 import { findContentTags } from '$lib/services/cms/tags';
@@ -18,6 +18,7 @@ export async function load({ params, url }) {
     const slug = data.slug
     const fslug = data.fslug
     const folder = await getFolder(fslug)
+    const folderTree = await findFolderLineage(folder.id)
     let v = url.searchParams.get('v');
 
     let content = await getContent(slug)
@@ -29,7 +30,7 @@ export async function load({ params, url }) {
     const pathname = url.pathname
     const form = await superValidate(content, zod(contentSchema));
 
-    return { content, instances, versions, folder, form, tags, pathname, specifiedVersion };
+    return { content, instances, versions, folder, form, tags, pathname, specifiedVersion, folderTree };
 }
 
 const getPublishedVersionID = (versions:Version[], specifiedVersion:string|null):Version => {

@@ -5,6 +5,7 @@
 	import { invalidateAll } from "$app/navigation";
 	import InstanceModal from "../../../../components/InstanceModal.svelte";
 	import LexicalDisplay from "../../../../components/LexicalDisplay.svelte";
+	import Breadcrumbs from "../../../../components/Breadcrumbs.svelte";
 
     interface Props {
         data: any,
@@ -127,6 +128,8 @@
 </script>
 
 
+<Breadcrumbs links={data.folderTree} pageDetail={data.content.title} topLevelLink="/cms" topLevelName="Content" />
+
 <div class="grid grid-cols-3 gap-4 p-4">
     <div class="col-span-1">
         <CSSection>
@@ -233,7 +236,7 @@
                                 {/if}
                             </p>
                             <p class="text-end">
-                                <button onclick={() => setPub(v.id)}>
+                                <button title="Publish this version" onclick={() => setPub(v.id)}>
                                 <ArrowRightOutline />
                                 </button>
                             </p>
