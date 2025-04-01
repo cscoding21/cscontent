@@ -124,6 +124,8 @@ export const newFolder = async (userID:string, name:string, parentID:string|null
           updatedBy: userID
         },
       })
+
+    await loadFolderCache()
 }
 
 /**
@@ -155,4 +157,6 @@ export const deleteFolder = async (userID:string, id:string) => {
             id: id,
           },
       })
+
+      await loadFolderCache()
 }

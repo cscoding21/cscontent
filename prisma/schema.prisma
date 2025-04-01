@@ -85,6 +85,24 @@ model Authenticator {
   @@id([userId, credentialID])
 }
 
+model ApiKey {
+  id          String    @id @default(cuid())
+  name        String?
+  ownerID     String
+  key         String
+  isActive    Boolean
+  expiresOn   DateTime
+  pausedUntil DateTime?
+  revokedOn   DateTime?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  createdBy String
+  updatedBy String
+  deletedBy String?
+}
+
 //------------------------------------------------------|
 //--csContent
 model Folder {
