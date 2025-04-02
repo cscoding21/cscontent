@@ -9,8 +9,6 @@ let folderMap = new Map<string, Folder>()
 const loadFolderCache = async () => {
     const folders = await prisma.folder.findMany()
 
-    console.log("folders", folders)
-
     for(let i = 0; i < folders.length; i++) {
         folderMap.set(folders[i].id, folders[i])
     }
@@ -21,8 +19,6 @@ export const findFolderLineage = async (fid:string):Promise<Folder[]> => {
     if(!folderMap || folderMap.size === 0) {
         await loadFolderCache()
     }
-
-    console.log("findFolderLineage", folderMap)
 
     let top = folderMap.get(fid)
     if (!top) {

@@ -17,7 +17,7 @@ export const findContent = async (parentID:string) => {
  * @param slugOrId the slug or ID of the folder to retrieve
  */
 export const getContent = async (slugOrId:string) => {
-  const folder =  await prisma.content.findFirstOrThrow(
+  const content =  await prisma.content.findFirstOrThrow(
       { 
           where: {
               OR: [
@@ -37,7 +37,7 @@ export const getContent = async (slugOrId:string) => {
           }
       })
 
-  return folder
+  return content
 }
 
 /**

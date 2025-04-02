@@ -1,6 +1,7 @@
 import { prisma } from '$lib/services/prisma'
 import { getID } from '$lib/utils/id'
 import type { ApiKey } from '@prisma/client'
+import { hashPassword, verifyPassword } from '$lib/services/cms/helpers'
 
 
 /**
@@ -22,13 +23,17 @@ const generateAPIKey = ():string => {
  * @param key the key to valiate
  * @returns a boolean promise representing whether or not the key is valid
  */
-export const validateAPIKey = async (key:string):Promise<boolean> => {
-    try {
-        const k = await getAPIKey(key)
-        return true
-    } catch(err) {
-        return false
-    }
+export const validateAPIKey = async (request: Request):Promise<boolean> => {
+  let id = request.headers.get("client_id")
+  let secret = request.headers.get("client_secret")
+
+  try {
+    const k = await getAPIKey(id as string)
+
+    return await verifyPassword(secret as string, k.keyhash)
+  } catch(err) {
+    return false
+  }
 }
 
 
@@ -37,11 +42,12 @@ export const validateAPIKey = async (key:string):Promise<boolean> => {
  * @param key the key to return
  * @returns an apikey object
  */
-export const getAPIKey = async (key:string):Promise<ApiKey> => {
+export const getAPIKey = async (id:string):Promise<ApiKey> => {
     const now = new Date() 
+
     return await prisma.apiKey.findFirstOrThrow({
         where: {
-            key: key,
+            id: id,
             isActive: true,
             expiresOn: {
                 gt: now
@@ -58,21 +64,29 @@ export const getAPIKey = async (key:string):Promise<ApiKey> => {
  * @returns the key object from the DB
  */
 export const newAPIKey = async (userID:string, name: string) => {
-    const expiresOn = new Date()
-    const key = generateAPIKey()
+    let expiresOn = new Date(); // Example date
+    let monthsToAdd = 3; // Number of months to add
+    expiresOn.setMonth(expiresOn.getMonth() + monthsToAdd);
 
-    return await prisma.apiKey.create({ 
+    const key = generateAPIKey()
+    const keyHash = await hashPassword(key)
+    const keyIndicator = key.slice(-4)
+
+    const k = await prisma.apiKey.create({ 
       data: {
         ownerID: userID,
         name: name,
         isActive: true,
         expiresOn: expiresOn,
-        key: key,
+        keyindicator: keyIndicator,
+        keyhash: keyHash,
 
         createdBy: userID,
         updatedBy: userID,
       }
     })
+
+    return { key, id: k.id }
 }
 
 /**

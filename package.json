@@ -25,8 +25,11 @@
 		"@tailwindcss/forms": "^0.5.9",
 		"@tailwindcss/typography": "^0.5.15",
 		"@tailwindcss/vite": "^4.0.0",
+		"@types/bcrypt": "^5.0.2",
 		"@types/node": "^22.13.10",
+		"@types/swagger-ui": "^3.52.4",
 		"autoprefixer": "^10.4.21",
+		"bcryptjs": "^3.0.2",
 		"eslint": "^9.18.0",
 		"eslint-config-prettier": "^10.0.1",
 		"eslint-plugin-svelte": "^3.0.0",
@@ -43,6 +46,7 @@
 		"stylelint-config-tailwindcss": "^1.0.0",
 		"svelte": "^5.0.0",
 		"svelte-check": "^4.0.0",
+		"svelte-copy": "^2.0.0",
 		"sveltekit-superforms": "^2.24.0",
 		"tailwindcss": "^4.0.0",
 		"typescript": "^5.0.0",
@@ -63,6 +67,7 @@
 		"@prisma/client": "^6.5.0",
 		"langchain": "^0.3.19",
 		"svelte-lexical": "^0.5.3",
+		"swagger-ui": "^5.20.3",
 		"zod": "^3.24.2"
 	}
 }
