@@ -1,6 +1,6 @@
 import { json } from "@sveltejs/kit";
 import { validateAPIKey } from "$lib/services/cms/apiauth";
-import { getContent } from "$lib/services/cms/content";
+import { getProcessedContent } from "$lib/services/cms/content";
 
 
 /**
@@ -12,7 +12,7 @@ export async function GET({ request, params }) {
     //const ok = await validateAPIKey(request)
 
     const { slug } = params
-    const content = await getContent(slug)
+    const content = await getProcessedContent(slug)
     console.log("content", content)
 
     return json({ content }, { status: 201 });

@@ -19,6 +19,29 @@ export const findContentInstances = async (contentID:string, versionID:string) =
   })
 }
 
+
+/**
+ * return a list of all available  instances from the published version
+ * @param contentID the contentID for which to find the instances
+ * @returns a list of all available instancess
+ */
+export const findPublishedContentInstances = async (contentID:string) => {
+  return await prisma.instance.findMany({ 
+    where: { 
+      contentID, version: {
+        isPublished: true
+      } 
+    },
+    include: {
+      version: {
+        select: {
+          number: true
+        }
+      }
+    }
+  })
+}
+
 /**
  * 
  * @param contentID 

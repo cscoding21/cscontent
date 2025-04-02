@@ -1,5 +1,13 @@
+import { createEditor, type EditorState } from "lexical";
+import { createHeadlessEditor } from '@lexical/headless'
 import { prisma } from "../prisma"
 import { newID, slugify } from "./helpers";
+import { findPublishedContentInstances } from "./instances";
+import type { OutContent } from "./types";
+import type { Content } from "@prisma/client";
+import { $generateHtmlFromNodes } from '@lexical/html';
+import { $convertToMarkdownString, TRANSFORMERS } from '@lexical/markdown';
+import { JSDOM } from 'jsdom'
 
 
 /**
@@ -17,7 +25,7 @@ export const findContent = async (parentID:string) => {
  * @param slugOrId the slug or ID of the folder to retrieve
  */
 export const getContent = async (slugOrId:string) => {
-  const content =  await prisma.content.findFirstOrThrow(
+  return await prisma.content.findFirstOrThrow(
       { 
           where: {
               OR: [
@@ -36,9 +44,43 @@ export const getContent = async (slugOrId:string) => {
               expiresOn: true,
           }
       })
-
-  return content
 }
+
+/**
+ * return a content object with the instance resolved
+ * @param slugOrID the slug or ID of the content to retrieve
+ * @returns a single item content with the instance resolved
+ */
+export const getProcessedContent = async (slugOrID:string) => {
+  const content = await getContent(slugOrID)
+
+  const instances = await findPublishedContentInstances(content.id)
+  console.log("instances", instances)
+
+  const theInstance = instances.filter(c => c.isDefault)[0]
+  console.log("theInstance", theInstance)
+  // const es = hydrateEditorState(JSON.stringify(theInstance.body))
+  // console.log("es", es)
+
+  let htmlOut = await getMarkdown(JSON.stringify(theInstance.body))
+
+  let out = {
+    title: content.title,
+    id: content.id,
+    slug: content.slug,
+    body: htmlOut,
+    updatedAt: theInstance.updatedAt,
+    createdAt: theInstance.createdAt
+  }
+
+  return out
+}
+
+
+/*
+     
+  */
+
 
 /**
  * create a new content element to a given folder
@@ -199,3 +241,89 @@ const wrapTextForInstance = (text:string):any => {
     }
   }
 }
+
+const hydrateEditorState = (es:string):any => {
+  let initialConfig = {
+      namespace: "default",
+      nodes: [],
+      onError: (err:any) => {
+          throw err;
+      }
+  }
+
+  const editor = createEditor(initialConfig)
+  editor.setEditorState(editor.parseEditorState(es))
+  editor.setEditable(false)
+
+  return editor
+}
+
+
+function setUpDom() {
+  const dom = new JSDOM();
+
+  const _window = global.window;
+  const _document = global.document;
+  const _documentFragment = global.DocumentFragment;
+
+  // @ts-ignore
+  global.window = dom.window;
+  global.document = dom.window.document;
+  global.DocumentFragment = dom.window.DocumentFragment;
+
+  return () => {
+    // @ts-ignore
+    global.window = _window;
+    global.document = _document;
+    global.DocumentFragment = _documentFragment;
+  };
+}
+
+
+export async function getHtml(jsonState: string) {
+  const html = await new Promise<string>((resolve, reject) => {
+    const editor = createHeadlessEditor({
+      nodes: [],
+      namespace: 'default',
+      onError: (error: Error) => {
+        throw error;
+      },
+    });
+    editor.setEditorState(editor.parseEditorState(jsonState));
+
+    editor.update(() => {
+      const cleanUpDom = setUpDom();
+      const _html = $generateHtmlFromNodes(editor, null);
+
+      cleanUpDom();
+      resolve(_html);
+    });
+  });
+
+  return html;
+}
+
+const getMarkdown = async (jsonState: string) => {
+  let md
+  try {
+    const editor = createHeadlessEditor({
+      nodes: [],
+      namespace: 'default',
+      onError: (error: Error) => {
+        throw error;
+      },
+    });
+
+    editor.setEditorState(editor.parseEditorState(JSON.parse(jsonState)));
+    await editor.update(() => {
+      const markdown = $convertToMarkdownString(TRANSFORMERS);
+      console.info('markdown', markdown);
+
+      md = markdown
+    });
+  } catch (e) {
+    // error handling
+  }
+
+  return md
+};
