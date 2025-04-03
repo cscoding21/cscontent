@@ -1,12 +1,9 @@
-import { createEditor, type EditorState } from "lexical";
 import { createHeadlessEditor } from '@lexical/headless'
 import { prisma } from "../prisma"
 import { newID, slugify } from "./helpers";
 import { findPublishedContentInstances } from "./instances";
-import type { OutContent } from "./types";
-import type { Content } from "@prisma/client";
 import { $generateHtmlFromNodes } from '@lexical/html';
-import { $convertToMarkdownString, TRANSFORMERS } from '@lexical/markdown';
+//import { $convertToMarkdownString, TRANSFORMERS } from '@lexical/markdown';
 import { JSDOM } from 'jsdom'
 
 
@@ -59,10 +56,8 @@ export const getProcessedContent = async (slugOrID:string) => {
 
   const theInstance = instances.filter(c => c.isDefault)[0]
   console.log("theInstance", theInstance)
-  // const es = hydrateEditorState(JSON.stringify(theInstance.body))
-  // console.log("es", es)
 
-  let htmlOut = await getMarkdown(JSON.stringify(theInstance.body))
+  let htmlOut = await getHtml(JSON.stringify(theInstance.body))
 
   let out = {
     title: content.title,
@@ -242,22 +237,6 @@ const wrapTextForInstance = (text:string):any => {
   }
 }
 
-const hydrateEditorState = (es:string):any => {
-  let initialConfig = {
-      namespace: "default",
-      nodes: [],
-      onError: (err:any) => {
-          throw err;
-      }
-  }
-
-  const editor = createEditor(initialConfig)
-  editor.setEditorState(editor.parseEditorState(es))
-  editor.setEditable(false)
-
-  return editor
-}
-
 
 function setUpDom() {
   const dom = new JSDOM();
@@ -303,6 +282,31 @@ export async function getHtml(jsonState: string) {
   return html;
 }
 
+
+export async function getMarkdown(jsonState: string) {
+  const markdown = await new Promise<string>((resolve, reject) => {
+    const editor = createHeadlessEditor({
+      nodes: [],
+      namespace: 'default',
+      onError: (error: Error) => {
+        throw error;
+      },
+    });
+    editor.setEditorState(editor.parseEditorState(jsonState));
+
+    editor.update(() => {
+      const cleanUpDom = setUpDom();
+      const _html = $generateHtmlFromNodes(editor, null);
+
+      cleanUpDom();
+      resolve(_html);
+    });
+  });
+
+  return markdown;
+}
+
+/*
 const getMarkdown = async (jsonState: string) => {
   let md
   try {
@@ -327,3 +331,4 @@ const getMarkdown = async (jsonState: string) => {
 
   return md
 };
+*/

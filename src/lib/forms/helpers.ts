@@ -1,6 +1,3 @@
-import type { ObjectSchema, Maybe, AnyObject } from 'yup';
-
-
 function isObjKey<T>(key: any, obj: any): key is keyof T {
 	return key in obj;
 }
@@ -11,18 +8,18 @@ function isObjKey<T>(key: any, obj: any): key is keyof T {
  * @param schema a yup schema
  * @returns an object that conforms to the passed schema
  */
-export function coalesceToType<T>(input: any, schema: ObjectSchema<Maybe<AnyObject>>): T {
-	const out: T = <T>{};
-	const describe = schema.describe();
+// export function coalesceToType<T>(input: any, schema: ObjectSchema<Maybe<AnyObject>>): T {
+// 	const out: T = <T>{};
+// 	const describe = schema.describe();
 
-	Object.keys(input).forEach((key) => {
-		if (isObjKey<T>(key, describe.fields)) {
-			out[key] = input[key];
-		}
-	});
+// 	Object.keys(input).forEach((key) => {
+// 		if (isObjKey<T>(key, describe.fields)) {
+// 			out[key] = input[key];
+// 		}
+// 	});
 
-	return out;
-}
+// 	return out;
+// }
 
 /**
  * hold before calling a function
