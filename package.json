@@ -11,7 +11,8 @@
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"format": "prettier --write .",
-		"lint": "prettier --check . && eslint ."
+		"lint": "prettier --check . && eslint .",
+		"start": "export PORT=3666 && node ./build"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.2.5",
@@ -28,6 +29,7 @@
 		"@tailwindcss/typography": "^0.5.15",
 		"@tailwindcss/vite": "^4.0.0",
 		"@types/bcrypt": "^5.0.2",
+		"@types/jsdom": "^21.1.7",
 		"@types/node": "^22.13.10",
 		"@types/swagger-ui": "^3.52.4",
 		"autoprefixer": "^10.4.21",

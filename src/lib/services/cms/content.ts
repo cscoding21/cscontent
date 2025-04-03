@@ -72,11 +72,6 @@ export const getProcessedContent = async (slugOrID:string) => {
 }
 
 
-/*
-     
-  */
-
-
 /**
  * create a new content element to a given folder
  * @param userID the user id performing the operation
@@ -190,6 +185,7 @@ export const contentNameAvailable = async (title:string):Promise<boolean> => {
   return exists === 0
 }
 
+
 /**
 * delete the specified folder based on the passed in ID
 * @param userID the id of the user performing the operation
@@ -282,7 +278,7 @@ export async function getHtml(jsonState: string) {
   return html;
 }
 
-
+/*
 export async function getMarkdown(jsonState: string) {
   const markdown = await new Promise<string>((resolve, reject) => {
     const editor = createHeadlessEditor({
@@ -305,30 +301,4 @@ export async function getMarkdown(jsonState: string) {
 
   return markdown;
 }
-
-/*
-const getMarkdown = async (jsonState: string) => {
-  let md
-  try {
-    const editor = createHeadlessEditor({
-      nodes: [],
-      namespace: 'default',
-      onError: (error: Error) => {
-        throw error;
-      },
-    });
-
-    editor.setEditorState(editor.parseEditorState(JSON.parse(jsonState)));
-    await editor.update(() => {
-      const markdown = $convertToMarkdownString(TRANSFORMERS);
-      console.info('markdown', markdown);
-
-      md = markdown
-    });
-  } catch (e) {
-    // error handling
-  }
-
-  return md
-};
 */
